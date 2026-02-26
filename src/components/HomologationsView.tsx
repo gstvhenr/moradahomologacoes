@@ -12,10 +12,20 @@ interface Props {
 
 const COLUMNS: { id: HomologationStatus; title: string; color: string; headerColor: string }[] = [
   { id: 'Not Started', title: 'Não Iniciado', color: 'bg-gray-50/80 dark:bg-slate-800/80 border-gray-200 dark:border-slate-700', headerColor: 'text-gray-700 dark:text-slate-300' },
-  { id: 'In Progress', title: 'Em Andamento', color: 'bg-blue-50/80 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800/50', headerColor: 'text-blue-700 dark:text-blue-400' },
-  { id: 'Waiting on Client', title: 'Ação Pendente', color: 'bg-amber-50/80 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800/50', headerColor: 'text-amber-700 dark:text-amber-400' },
+  { id: 'In Progress', title: 'Em Andamento', color: 'bg-cyan-50/80 dark:bg-cyan-900/20 border-cyan-200 dark:border-cyan-800/50', headerColor: 'text-cyan-700 dark:text-cyan-400' },
+  { id: 'Waiting on Client', title: 'Ação Pendente', color: 'bg-accent-50/80 dark:bg-accent-900/20 border-accent-200 dark:border-accent-800/50', headerColor: 'text-accent-700 dark:text-accent-400' },
+  { id: 'Waiting on Sector', title: 'Aguardando Setor', color: 'bg-orange-50/80 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800/50', headerColor: 'text-orange-700 dark:text-orange-400' },
   { id: 'Approved', title: 'Finalizado', color: 'bg-emerald-50/80 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800/50', headerColor: 'text-emerald-700 dark:text-emerald-400' },
 ];
+
+function isDeadlineExpired(deadline: string): boolean {
+  if (!deadline) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const deadlineDate = new Date(`${deadline}T12:00:00`);
+  deadlineDate.setHours(0, 0, 0, 0);
+  return deadlineDate <= today;
+}
 
 export function HomologationsView({ tasks, onTaskClick, onArchiveTask }: Props) {
   return (
@@ -50,16 +60,17 @@ export function HomologationsView({ tasks, onTaskClick, onArchiveTask }: Props) 
                     <div
                       key={task.id}
                       onClick={() => onTaskClick(task)}
-                      className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm p-5 rounded-2xl shadow-sm border border-white/60 dark:border-slate-700/60 cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:shadow-md transition-all duration-200 group relative overflow-hidden"
+                      className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm p-5 rounded-2xl shadow-sm border border-white/60 dark:border-slate-700/60 cursor-pointer hover:border-brand-300 dark:hover:border-brand-500/50 hover:shadow-md transition-all duration-200 group relative overflow-hidden"
                     >
                       <div className={`absolute left-0 top-0 bottom-0 w-1 ${task.status === 'Approved' ? 'bg-emerald-500' :
-                        task.status === 'Waiting on Client' ? 'bg-amber-500' :
-                          task.status === 'In Progress' ? 'bg-blue-500' :
-                            task.status === 'Rejected' ? 'bg-red-500' : 'bg-slate-300'
+                        task.status === 'Waiting on Client' ? 'bg-accent-500' :
+                          task.status === 'Waiting on Sector' ? 'bg-orange-400' :
+                            task.status === 'In Progress' ? 'bg-cyan-300' :
+                              task.status === 'Rejected' ? 'bg-red-500' : 'bg-slate-300'
                         }`} />
 
                       <div className="flex justify-between items-start mb-3 pl-2">
-                        <h4 className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2 leading-tight">
+                        <h4 className="font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-cyan-300 transition-colors line-clamp-2 leading-tight">
                           {task.clientName}
                         </h4>
                         <button aria-label="Mais opções" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -72,19 +83,19 @@ export function HomologationsView({ tasks, onTaskClick, onArchiveTask }: Props) 
                         <div>
                           <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1.5 font-semibold transition-colors">
                             <span>Checklist</span>
-                            <span className={progress === 100 ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600 dark:text-indigo-400'}>{completedChecklist}/{totalChecklist}</span>
+                            <span className={progress === 100 ? 'text-emerald-600 dark:text-emerald-400' : 'text-brand-600 dark:text-cyan-400'}>{completedChecklist}/{totalChecklist}</span>
                           </div>
                           <div className="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden transition-colors">
                             <div
-                              className={`progress-bar-fill h-full rounded-full transition-all duration-500 ${progress === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`}
+                              className={`progress-bar-fill h-full rounded-full transition-all duration-500 ${progress === 100 ? 'bg-emerald-500' : 'bg-brand-500'}`}
                               ref={(el) => { if (el) el.style.width = `${progress}%`; }}
                             />
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium transition-colors">
+                        <div className={`flex items-center justify-between text-xs font-medium transition-colors ${isDeadlineExpired(task.deadline) && task.status !== 'Approved' ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 px-2 py-1 rounded-lg border border-red-100 dark:border-red-800/30' : 'text-slate-500 dark:text-slate-400'}`}>
                           <div className="flex items-center gap-1.5" title="Prazo">
-                            <Calendar className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                            <Calendar className={`w-4 h-4 ${isDeadlineExpired(task.deadline) && task.status !== 'Approved' ? 'text-red-500 dark:text-red-400' : 'text-slate-400 dark:text-slate-500'}`} />
                             {formatDate(task.deadline) || 'Sem prazo'}
                           </div>
                         </div>

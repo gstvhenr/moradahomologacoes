@@ -44,7 +44,7 @@ export function ArchivedView({ tasks, onTaskClick, onRestoreTask, onBack }: Prop
 
               <div className="flex-1 pl-3 cursor-pointer" onClick={() => onTaskClick(task)}>
                 <div className="flex flex-wrap items-center gap-4 mb-3">
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-cyan-300 transition-colors">
                     {task.clientName}
                   </h3>
                   <Badge variant="success" className="gap-1">
@@ -78,7 +78,7 @@ export function ArchivedView({ tasks, onTaskClick, onRestoreTask, onBack }: Prop
 
                 <Button
                   onClick={() => onRestoreTask(task.id)}
-                  className="gap-2 bg-amber-500 hover:bg-amber-400 text-white shadow-lg shadow-amber-500/20 rounded-full px-5 py-3 text-xs font-semibold transition-all hover:scale-105"
+                  className="gap-2 bg-accent-500 hover:bg-accent-400 text-brand-900 shadow-lg shadow-accent-500/20 rounded-full px-5 py-3 text-xs font-semibold transition-all hover:scale-105"
                   title="Restaurar homologação"
                 >
                   <ArchiveRestore className="w-4 h-4" />

@@ -13,11 +13,11 @@ interface SidebarProps {
 
 export function Sidebar({ activeTab, onTabChange, userName, userRole, onLogout }: SidebarProps) {
   return (
-    <aside className="w-64 bg-slate-800 dark:bg-slate-950 border-r border-slate-700/50 dark:border-slate-800/50 flex flex-col shadow-2xl z-10 text-slate-300 relative overflow-hidden transition-colors duration-300">
-      <div className="absolute top-0 left-0 w-full h-64 bg-indigo-400/10 blur-[80px] pointer-events-none" />
+    <aside className="w-64 bg-brand-800 dark:bg-brand-950 border-r border-brand-700/50 dark:border-brand-800/50 flex flex-col shadow-2xl z-10 text-brand-100 relative overflow-hidden transition-colors duration-300">
+      <div className="absolute top-0 left-0 w-full h-64 bg-cyan-300/10 blur-[80px] pointer-events-none" />
 
       {/* Logo */}
-      <div className="p-6 border-b border-slate-700/50 relative z-10">
+      <div className="p-6 border-b border-brand-700/50 relative z-10">
         <div className="flex items-center text-white font-bold text-xl tracking-tight">
           Homologações Morada
         </div>
@@ -39,13 +39,13 @@ export function Sidebar({ activeTab, onTabChange, userName, userRole, onLogout }
         />
       </nav>
 
-      <div className="p-4 border-t border-slate-700/50 dark:border-slate-800/50 relative z-10 space-y-2">
+      <div className="p-4 border-t border-brand-700/50 dark:border-brand-800/50 relative z-10 space-y-2">
         {userName && (
-          <div className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-300">
-            <div className="w-7 h-7 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center shrink-0">
-              <User className="w-3.5 h-3.5 text-indigo-400" />
+          <div className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-brand-100">
+            <div className="w-7 h-7 rounded-full bg-accent-500/20 border border-accent-500/30 flex items-center justify-center shrink-0">
+              <User className="w-3.5 h-3.5 text-accent-400" />
             </div>
-            <span className="truncate font-medium text-slate-200">{userName}</span>
+            <span className="truncate font-medium text-white">{userName}</span>
           </div>
         )}
         {onLogout && (
@@ -67,11 +67,12 @@ function NavButton({ active, onClick, icon, label }: { active: boolean; onClick:
   return (
     <button
       onClick={onClick}
-      className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${active
-        ? 'bg-indigo-500/20 text-indigo-200 shadow-inner border border-indigo-500/30'
-        : 'text-slate-300 hover:bg-slate-700/50 hover:text-white border border-transparent'
+      className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 relative ${active
+        ? 'bg-cyan-300/15 text-white shadow-inner border border-cyan-300/20'
+        : 'text-brand-200 hover:bg-brand-700/50 hover:text-white border border-transparent'
         }`}
     >
+      {active && <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-cyan-300" />}
       {icon}
       {label}
     </button>

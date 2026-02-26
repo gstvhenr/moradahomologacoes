@@ -36,7 +36,7 @@ export interface Interaction {
   description: string;
 }
 
-export type HomologationStatus = 'Not Started' | 'In Progress' | 'Waiting on Client' | 'Approved' | 'Rejected';
+export type HomologationStatus = 'Not Started' | 'In Progress' | 'Waiting on Client' | 'Waiting on Sector' | 'Approved' | 'Rejected';
 
 export type TaskPriority = 'low' | 'medium' | 'high';
 

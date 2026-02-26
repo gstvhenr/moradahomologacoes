@@ -2,6 +2,45 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  /* Brand Primary: #305B78 */
+  --color-brand-50: #e8f0f5;
+  --color-brand-100: #c5dbe8;
+  --color-brand-200: #9ec3d9;
+  --color-brand-300: #77abca;
+  --color-brand-400: #5a99bf;
+  --color-brand-500: #3d87b4;
+  --color-brand-600: #305b78;
+  --color-brand-700: #274a62;
+  --color-brand-800: #1e3a4d;
+  --color-brand-900: #152a38;
+  --color-brand-950: #0d1b24;
+
+  /* Brand Accent Yellow: #FECA0A */
+  --color-accent-50: #fff9e0;
+  --color-accent-100: #fff1b3;
+  --color-accent-200: #ffe880;
+  --color-accent-300: #ffdf4d;
+  --color-accent-400: #fed726;
+  --color-accent-500: #feca0a;
+  --color-accent-600: #e5b500;
+  --color-accent-700: #b88f00;
+  --color-accent-800: #8c6c00;
+  --color-accent-900: #604a00;
+
+  /* Brand Cyan: #60CAE1 */
+  --color-cyan-50: #e6f7fb;
+  --color-cyan-100: #c0ecf5;
+  --color-cyan-200: #96dfee;
+  --color-cyan-300: #60cae1;
+  --color-cyan-400: #3dbdd9;
+  --color-cyan-500: #1aafcf;
+  --color-cyan-600: #158fa9;
+  --color-cyan-700: #106e82;
+  --color-cyan-800: #0b4e5c;
+  --color-cyan-900: #062f37;
+}
+
 /* Progress bar dynamic width via inline width */
 .progress-bar-fill {
   width: 0%;

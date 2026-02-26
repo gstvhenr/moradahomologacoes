@@ -35,7 +35,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-indigo-100 via-slate-50 to-blue-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 font-sans selection:bg-indigo-200 transition-colors duration-300">
+    <div className="flex h-screen bg-gradient-to-br from-brand-50 via-cyan-50 to-accent-50 dark:from-brand-950 dark:via-brand-900 dark:to-brand-950 font-sans selection:bg-brand-200 transition-colors duration-300">
 
       <Sidebar
         activeTab={activeTab}
@@ -47,8 +47,8 @@ export default function App() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden flex flex-col relative">
-        <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full bg-blue-400/10 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] rounded-full bg-indigo-400/10 blur-[120px] pointer-events-none" />
+        <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full bg-cyan-300/10 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] rounded-full bg-brand-400/10 blur-[120px] pointer-events-none" />
 
         <div className="flex-1 p-6 overflow-y-auto relative z-10">
           {showArchived ? (

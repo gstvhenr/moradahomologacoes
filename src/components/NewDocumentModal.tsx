@@ -51,7 +51,7 @@ export function NewDocumentModal({ isOpen, onClose, onCreateDocument }: NewDocum
             aria-label="Categoria do Documento"
             value={formData.category || ''}
             onChange={(e) => updateField('category', e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-2 border transition-colors"
+            className="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-2 border transition-colors"
           >
             <option value="">Selecione...</option>
             {DOCUMENT_CATEGORIES.map(cat => (
@@ -76,7 +76,7 @@ export function NewDocumentModal({ isOpen, onClose, onCreateDocument }: NewDocum
             aria-label="Status do Documento"
             value={formData.status || 'Valid'}
             onChange={(e) => updateField('status', e.target.value as CarrierDocument['status'])}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-2 border transition-colors"
+            className="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-brand-500 focus:ring-brand-500 sm:text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-2 border transition-colors"
           >
             <option value="Valid">Válido</option>
             <option value="Expired">Vencido</option>
