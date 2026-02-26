@@ -1,0 +1,72 @@
+{
+  "generatedAt": "2026-02-24T04:42:10.890Z",
+  "totalDurationMs": 54003,
+  "status": "passed",
+  "failedGateId": null,
+  "gates": [
+    {
+      "id": "typecheck",
+      "command": "npm run typecheck",
+      "status": "passed",
+      "durationMs": 7486,
+      "exitCode": 0,
+      "hint": null
+    },
+    {
+      "id": "lint",
+      "command": "npm run lint",
+      "status": "passed",
+      "durationMs": 6500,
+      "exitCode": 0,
+      "hint": null
+    },
+    {
+      "id": "format:check",
+      "command": "npm run format:check",
+      "status": "passed",
+      "durationMs": 5545,
+      "exitCode": 0,
+      "hint": null
+    },
+    {
+      "id": "check:docs:governance",
+      "command": "npm run check:docs:governance",
+      "status": "passed",
+      "durationMs": 547,
+      "exitCode": 0,
+      "hint": null
+    },
+    {
+      "id": "check:lines",
+      "command": "npm run check:lines",
+      "status": "passed",
+      "durationMs": 524,
+      "exitCode": 0,
+      "hint": null
+    },
+    {
+      "id": "check:duplication",
+      "command": "npm run check:duplication",
+      "status": "passed",
+      "durationMs": 4696,
+      "exitCode": 0,
+      "hint": null
+    },
+    {
+      "id": "test:coverage",
+      "command": "npm run test:coverage",
+      "status": "passed",
+      "durationMs": 20115,
+      "exitCode": 0,
+      "hint": null
+    },
+    {
+      "id": "build",
+      "command": "npm run build",
+      "status": "passed",
+      "durationMs": 8582,
+      "exitCode": 0,
+      "hint": null
+    }
+  ]
+}

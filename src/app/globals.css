@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Progress bar dynamic width via CSS custom property */
+.progress-bar-fill {
+  width: var(--progress, 0%);
+}
