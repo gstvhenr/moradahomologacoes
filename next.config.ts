@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [],
   },
   output: 'standalone',
-  transpilePackages: ['motion'],
+  transpilePackages: ['motion', 'lucide-react'],
   webpack: (config, { dev }) => {
     // HMR is disabled in certain environments via DISABLE_HMR env var.
     // Do not modify—file watching is disabled to prevent flickering during agent edits.

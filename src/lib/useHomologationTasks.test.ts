@@ -17,9 +17,9 @@ vi.mock('./useLocalStorage', () => ({
 
 // Simpler approach: mock useLocalStorage with a factory
 vi.mock('./useLocalStorage', () => {
-  const { useState } = require('react');
   return {
     useLocalStorage: <T,>(_key: string, initialValue: T) => {
+      const { useState } = require('react') as typeof import('react');
       return useState<T>(initialValue);
     },
   };

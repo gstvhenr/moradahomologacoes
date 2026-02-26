@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useLocalStorage } from './useLocalStorage';
 
 export type UserRole = 'editor' | 'reader';
 
@@ -16,7 +17,7 @@ const VALID_USERS = [
 ];
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useLocalStorage<User | null>('auth-user-v2', null);
   const [error, setError] = useState('');
 
   const login = (email: string, password: string): boolean => {

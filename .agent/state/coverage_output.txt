@@ -1,0 +1,97 @@
+
+> gerenciador-de-homologacao@0.1.0 test:coverage
+> vitest run --coverage
+
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90mC:/Users/gustavo.geraldo/Documents/08. gerenciador-de-homologacao[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [31mÔØ»[39m src/lib/useThemeToggle.test.ts [2m([22m[2m5 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 37[2mms[22m[39m
+[31m     [31m├ù[31m should start with dark theme as default[39m[32m 25[2mms[22m[39m
+     [32mÔ£ô[39m should be mounted after initial render[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m should add dark class to document when theme is dark[39m[32m 4[2mms[22m[39m
+[31m     [31m├ù[31m should toggle from dark to light[39m[32m 3[2mms[22m[39m
+[31m     [31m├ù[31m should toggle from light back to dark[39m[32m 3[2mms[22m[39m
+ [32mÔ£ô[39m src/lib/useCarrierDocuments.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+ [32mÔ£ô[39m src/lib/useHomologationTasks.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32mÔ£ô[39m src/components/NewTaskModal.test.tsx [2m([22m[2m6 tests[22m[2m)[22m[33m 992[2mms[22m[39m
+     [33m[2mÔ£ô[22m[39m should call onCreateTask with client name when form is submitted [33m 701[2mms[22m[39m
+ [32mÔ£ô[39m src/components/NewDocumentModal.test.tsx [2m([22m[2m7 tests[22m[2m)[22m[33m 1266[2mms[22m[39m
+     [33m[2mÔ£ô[22m[39m should NOT call onCreateDocument without name [33m 616[2mms[22m[39m
+     [33m[2mÔ£ô[22m[39m should NOT call onCreateDocument without category [33m 434[2mms[22m[39m
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Tests 4 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+ FAIL  src/lib/useThemeToggle.test.ts > useThemeToggle > should start with dark theme as default
+AssertionError: expected 'light' to be 'dark' // Object.is equality
+
+Expected: "dark"
+Received: "light"
+
+ ÔØ» src/lib/useThemeToggle.test.ts:22:34
+     20|   it('should start with dark theme as default', () => {
+     21|     const { result } = renderHook(() => useThemeToggle());
+     22|     expect(result.current.theme).toBe('dark');
+       |                                  ^
+     23|   });
+     24| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1/4]ÔÄ»
+
+ FAIL  src/lib/useThemeToggle.test.ts > useThemeToggle > should add dark class to document when theme is dark
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ÔØ» src/lib/useThemeToggle.test.ts:32:65
+     30|   it('should add dark class to document when theme is dark', () => {
+     31|     renderHook(() => useThemeToggle());
+     32|     expect(document.documentElement.classList.contains('dark')).toBe(tÔÇª
+       |                                                                 ^
+     33|   });
+     34| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[2/4]ÔÄ»
+
+ FAIL  src/lib/useThemeToggle.test.ts > useThemeToggle > should toggle from dark to light
+AssertionError: expected 'dark' to be 'light' // Object.is equality
+
+Expected: "light"
+Received: "dark"
+
+ ÔØ» src/lib/useThemeToggle.test.ts:42:34
+     40|     });
+     41| 
+     42|     expect(result.current.theme).toBe('light');
+       |                                  ^
+     43|     expect(document.documentElement.classList.contains('dark')).toBe(fÔÇª
+     44|   });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[3/4]ÔÄ»
+
+ FAIL  src/lib/useThemeToggle.test.ts > useThemeToggle > should toggle from light back to dark
+AssertionError: expected 'dark' to be 'light' // Object.is equality
+
+Expected: "light"
+Received: "dark"
+
+ ÔØ» src/lib/useThemeToggle.test.ts:53:34
+     51|       result.current.toggleTheme();
+     52|     });
+     53|     expect(result.current.theme).toBe('light');
+       |                                  ^
+     54| 
+     55|     // Light ÔåÆ Dark
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[4/4]ÔÄ»
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m4 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m26 passed[39m[22m[90m (30)[39m
+[2m   Start at [22m 13:00:48
+[2m   Duration [22m 23.35s[2m (transform 1.04s, setup 2.42s, import 19.30s, tests 2.37s, environment 79.64s)[22m
+

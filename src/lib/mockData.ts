@@ -96,30 +96,45 @@ export const initialTasks: HomologationTask[] = [
     ], history: [], contactName: 'Thales Hernani dos Santos Ferreira', contactEmail: 'thales.ferreira@minervafoods.com', contactPhone: '(17) 98183-6630', contactIsWhatsApp: true, contactLink: 'https://fluig.minervafoods.com:10000/portal/MINERVA/cadastroTransportador', empresa: 'Morada', filial: 'Araraquara (Matriz)'
   },
   {
-    id: '7', clientName: 'Vibra', status: 'Waiting on Client', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: 'Entrar em contato por telefone', checklist: [
+    id: '7', clientName: 'Vibra', status: 'Waiting on Sector', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
       {
         id: 'vb-checklist-1',
         title: 'Pendências',
-        status: 'NotStarted',
+        status: 'WaitingOtherSector',
         responsible: 'Comercial',
         subtasks: [
-          { id: 'vb-s1', title: 'Solicitar a Vibra Energia cadastro do meu usuário para visualização de toda pendência documental no cadastro de todas unidades da Morada.', type: 'checkbox', status: 'NotStarted', value: false },
+          { id: 'vb-s1', title: 'Solicitar a Vibra Energia cadastro do meu usuário para visualização de toda pendência documental no cadastro de todas unidades da Morada.', type: 'checkbox', status: 'Done', value: true },
+          { id: 'vb-s2', title: 'Encaminhado novo e-mail em 26/02 - Aguardando retorno', type: 'checkbox', status: 'WaitingOtherSector', value: false },
         ]
       }
-    ], history: [], contactName: '-', contactEmail: '-', contactPhone: '(21) 2566-2100', contactIsWhatsApp: false, contactLink: 'https://cn.vibraenergia.com.br/', empresa: 'Morada', filial: ''
+    ], history: [], contactName: '-', contactEmail: 'cadfornecedores@vibraenergia.com.br', contactPhone: '(21) 2566-2100', contactIsWhatsApp: false, contactLink: 'https://cn.vibraenergia.com.br/', empresa: 'Morada', filial: ''
   },
   {
-    id: '8', clientName: 'Grupo Petropolis', status: 'Waiting on Client', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: 'Preenchimento RFI\n\n#Contato 02:\nNome: Airton Rocha\nE-mail: acrocha@grupopetropolis.com.br\nTelefone: (15) 99101-1375', checklist: [
+    id: '8', clientName: 'Grupo Petropolis', status: 'In Progress', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
       {
         id: 'gp-checklist-2',
         title: 'Preenchimento RFI',
         status: 'NotStarted',
         responsible: 'Comercial',
         subtasks: [
-          { id: 'gp-r1', title: 'Preencher RFI conforme planilha', type: 'checkbox', status: 'NotStarted', value: false },
+          { id: 'gp-r1', title: 'Razão Social da Transportadora', type: 'text', status: 'Done', value: 'RODOVIARIO MORADA DO SOL LTDA' },
+          { id: 'gp-r2', title: 'CNPJ da Matriz', type: 'text', status: 'Done', value: '43.954.460/0001-61' },
+          { id: 'gp-r3', title: 'Data de Fundação da Transportadora', type: 'text', status: 'Done', value: '22/02/1962' },
+          { id: 'gp-r4', title: 'Seguradora está ativa?', type: 'single-select', status: 'Done', value: 'Sim', options: ['Sim', 'Não'] },
+          { id: 'gp-r5', title: 'Trabalha com alguma empresa do ramo de bebidas?', type: 'text', status: 'Done', value: 'Heineken' },
+          { id: 'gp-r6', title: 'Modais de Atuação', type: 'text', status: 'Done', value: 'Rodoviário' },
+          { id: 'gp-r7', title: 'Qual operação do Grupo Petrópolis a transportadora tem interesse/perfil para atender?', type: 'text', status: 'Done', value: 'Frete Inbound, Frete Outbound Primário (Fábricas), Frete Outbound Secundário (CDS) e Frete SPOT / Emergencial' },
+          { id: 'gp-r8', title: 'Região de Atendimento', type: 'text', status: 'Done', value: 'Centro-Oeste e Sudeste' },
+          { id: 'gp-r9', title: 'Tamanho da Frota Atual (Apenas Frota Própria)', type: 'number', status: 'NotStarted', value: 0 },
+          { id: 'gp-r10', title: 'A frota tem rastreamento, monitoramento, TMS, etc?', type: 'single-select', status: 'Done', value: 'Sim', options: ['Sim', 'Não'] },
+          { id: 'gp-r11', title: 'Idade Média da Frota (Em Anos)', type: 'number', status: 'NotStarted', value: 0 },
+          { id: 'gp-r12', title: 'Contato Comercial (E-mail)', type: 'text', status: 'Done', value: 'comercial@morada.com.br' },
+          { id: 'gp-r13', title: 'Contato Comercial (Telefone)', type: 'text', status: 'Done', value: '(16) 99792-4683' },
+          { id: 'gp-r14', title: 'Contato Operacional (E-mail)', type: 'text', status: 'Done', value: 'miqueias.almeida@morada.com.br' },
+          { id: 'gp-r15', title: 'Contato Financeiro (E-mail)', type: 'text', status: 'Done', value: 'financeiro@morada.com.br' },
         ]
       }
-    ], history: [], contactName: 'Evelyn Souza', contactEmail: 'evsouza@grupopetropolis.com.br', contactPhone: '-', contactIsWhatsApp: false, contactLink: 'https://grupomorada-my.sharepoint.com/:x:/g/personal/gustavo_geraldo_grupomorada_com_br/IQDQuEJnTzQYSpC-jrxg0COsAdZd9gQdfZcag7zh0xuLn54?e=gxAKOz', empresa: 'Morada', filial: ''
+    ], history: [], contactName: 'Evelyn Souza', contactEmail: 'evsouza@grupopetropolis.com.br', contactPhone: '-', contactIsWhatsApp: false, contactLink: 'https://forms.office.com/Pages/ResponsePage.aspx?id=YaUhhsQ11EiWizqpu7MLx54cnZX4bt1NmoJWcLKtkN5UNUo0S0I4UExWSDdNQ0ZKTTVXWFU5TjRTVS4u&origin=QRCode', empresa: 'Morada', filial: ''
   },
   { id: '9', clientName: 'Royal Fic Combustível', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
   { id: '10', clientName: 'Inpasa', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
@@ -134,7 +149,7 @@ export const initialTasks: HomologationTask[] = [
   { id: '19', clientName: 'Santa Helena', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
   { id: '20', clientName: 'Gomes De Carvalho', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
   { id: '21', clientName: 'Ambev', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
-  { id: '22', clientName: 'Agropalma', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
+  { id: '22', clientName: 'Agropalma', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: 'https://sesuite.agropalma.com.br/se/v79508/survey/s.php?token=b64177bea871456cf6633911e5e1eac6&se-guestsession-token=6006756f404b74441f496274d7830aec9241', empresa: '', filial: '' },
 ];
 
 export const initialArchivedTasks: HomologationTask[] = [
