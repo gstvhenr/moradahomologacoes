@@ -6,7 +6,7 @@ import { initialTasks } from './mockData';
 import { HomologationTask } from '../types';
 
 export function useHomologationTasks() {
-  const DATA_VERSION = 'v26-remove-archived';
+  const DATA_VERSION = 'v28-batch-status-updates';
 
   // Check if data needs re-seeding (SSR-safe)
   try {
@@ -26,6 +26,10 @@ export function useHomologationTasks() {
   const updateTask = (updatedTask: HomologationTask) => {
     setTasks(tasks.map(t => t.id === updatedTask.id ? updatedTask : t));
     setSelectedTask(updatedTask);
+  };
+
+  const updateTaskSilent = (updatedTask: HomologationTask) => {
+    setTasks(tasks.map(t => t.id === updatedTask.id ? updatedTask : t));
   };
 
   const createTask = (clientName: string) => {
@@ -58,6 +62,7 @@ export function useHomologationTasks() {
     selectedTask,
     setSelectedTask,
     updateTask,
+    updateTaskSilent,
     createTask,
   };
 }

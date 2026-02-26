@@ -57,4 +57,5 @@ export interface HomologationTask {
   history: Interaction[];
   notes: string;
   priority: TaskPriority;
+  completed?: boolean;
 }

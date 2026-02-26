@@ -8,6 +8,7 @@ interface Props {
   tasks: HomologationTask[];
   onTaskClick: (task: HomologationTask) => void;
   onAddTask?: () => void;
+  onUpdateTask?: (task: HomologationTask) => void;
 }
 
 function isDeadlineExpired(deadline: string): boolean {
@@ -19,7 +20,7 @@ function isDeadlineExpired(deadline: string): boolean {
   return deadlineDate <= today;
 }
 
-export function HomologationsListView({ tasks, onTaskClick, onAddTask }: Props) {
+export function HomologationsListView({ tasks, onTaskClick, onAddTask, onUpdateTask }: Props) {
   const getStatusBadge = (status: HomologationStatus) => {
     switch (status) {
       case 'Not Started': return <Badge variant="neutral" className="gap-1"><Clock4 className="w-3 h-3" /> Não Iniciado</Badge>;
@@ -55,15 +56,19 @@ export function HomologationsListView({ tasks, onTaskClick, onAddTask }: Props) 
           const isFinished = task.status === 'Approved' || task.status === 'Rejected';
           const completedChecklist = isFinished ? totalChecklist : allSubtasks.filter(s => s.status === 'Done').length;
           const progress = isFinished ? 100 : (totalChecklist === 0 ? 0 : Math.round((completedChecklist / totalChecklist) * 100));
+          const isCompleted = task.completed ?? false;
 
           return (
             <div
               key={task.id}
               onClick={() => onTaskClick(task)}
-              className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-7 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/60 dark:border-slate-700/60 cursor-pointer hover:bg-white/90 dark:hover:bg-slate-800/90 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:border-brand-100 dark:hover:border-brand-500/30 transition-all duration-300 group flex flex-col md:flex-row md:items-center gap-8 relative overflow-hidden"
+              className={`backdrop-blur-xl p-7 rounded-3xl border cursor-pointer transition-all duration-300 group flex flex-col md:flex-row md:items-center gap-8 relative overflow-hidden ${isCompleted
+                  ? 'bg-slate-100/50 dark:bg-slate-800/40 shadow-none border-slate-200/40 dark:border-slate-700/40 hover:bg-slate-100/70 dark:hover:bg-slate-800/50'
+                  : 'bg-white/70 dark:bg-slate-800/70 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border-white/60 dark:border-slate-700/60 hover:bg-white/90 dark:hover:bg-slate-800/90 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:border-brand-100 dark:hover:border-brand-500/30'
+                }`}
             >
               {/* Decorative side bar */}
-              <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${task.status === 'Approved' ? 'bg-emerald-500' :
+              <div className={`absolute left-0 top-0 bottom-0 w-1.5 transition-opacity ${isCompleted ? 'opacity-30' : ''} ${task.status === 'Approved' ? 'bg-emerald-500' :
                 task.status === 'Waiting on Client' ? 'bg-accent-500' :
                   task.status === 'Waiting on Sector' ? 'bg-orange-400' :
                     task.status === 'In Progress' ? 'bg-cyan-300' :
@@ -72,13 +77,40 @@ export function HomologationsListView({ tasks, onTaskClick, onAddTask }: Props) 
 
               <div className="flex-1 pl-3">
                 <div className="flex flex-wrap items-center gap-4 mb-3">
-                  <h3 className="text-2xl font-bold text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-cyan-300 transition-colors">
+                  <h3 className={`text-2xl font-bold transition-colors ${isCompleted
+                      ? 'text-slate-400 dark:text-slate-500 line-through decoration-slate-300 dark:decoration-slate-600'
+                      : 'text-slate-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-cyan-300'
+                    }`}>
                     {task.clientName}
                   </h3>
                 </div>
+
+                {/* Completed checkbox */}
+                {onUpdateTask && (
+                  <label
+                    className="inline-flex items-center gap-2 cursor-pointer select-none"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isCompleted}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        onUpdateTask({ ...task, completed: e.target.checked });
+                      }}
+                      className="rounded border-slate-300 dark:border-slate-600 text-emerald-500 focus:ring-emerald-400 h-3.5 w-3.5 cursor-pointer"
+                    />
+                    <span className={`text-xs transition-colors ${isCompleted
+                        ? 'text-emerald-500 dark:text-emerald-400 font-medium'
+                        : 'text-slate-400 dark:text-slate-500'
+                      }`}>
+                      Tarefa concluída
+                    </span>
+                  </label>
+                )}
               </div>
 
-              <div className="flex items-center gap-10 md:w-7/12 justify-between md:justify-end">
+              <div className={`flex items-center gap-10 md:w-7/12 justify-between md:justify-end transition-opacity ${isCompleted ? 'opacity-40' : ''}`}>
                 <div className="flex-1 max-w-[200px]">
                   <div className="flex justify-between text-sm text-slate-600 dark:text-slate-300 mb-2 font-semibold transition-colors">
                     <span>Progresso</span>

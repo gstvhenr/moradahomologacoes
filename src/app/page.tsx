@@ -17,7 +17,7 @@ import { LoginPage } from '@/components/LoginPage';
 export default function App() {
   const [activeTab, setActiveTab] = useState<'list' | 'kanban'>('list');
   const { mounted } = useThemeToggle();
-  const { tasks, selectedTask, setSelectedTask, updateTask, createTask } = useHomologationTasks();
+  const { tasks, selectedTask, setSelectedTask, updateTask, updateTaskSilent, createTask } = useHomologationTasks();
   const { createDocument } = useCarrierDocuments();
   const { user, error, login, logout, isAuthenticated, isEditor } = useAuth();
 
@@ -54,6 +54,7 @@ export default function App() {
               tasks={tasks}
               onTaskClick={setSelectedTask}
               onAddTask={isEditor ? () => setIsNewTaskModalOpen(true) : undefined}
+              onUpdateTask={isEditor ? updateTaskSilent : undefined}
             />
           )}
           {activeTab === 'kanban' && (
