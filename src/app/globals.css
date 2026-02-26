@@ -2,7 +2,7 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Progress bar dynamic width via CSS custom property */
+/* Progress bar dynamic width via inline width */
 .progress-bar-fill {
-  width: var(--progress, 0%);
+  width: 0%;
 }

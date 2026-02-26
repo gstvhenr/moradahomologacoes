@@ -31,16 +31,20 @@ export function Modal({ isOpen, onClose, title, children, size = 'lg' }: ModalPr
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 sm:p-6">
-      <div 
-        className={`bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full flex flex-col overflow-hidden transition-colors ${sizeClasses[size]}`}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md p-4 sm:p-6"
+      onClick={onClose}
+    >
+      <div
+        className={`bg-white dark:bg-slate-900 rounded-2xl shadow-2xl shadow-black/10 dark:shadow-black/40 w-full flex flex-col overflow-hidden transition-colors border border-gray-100 dark:border-slate-800 ${sizeClasses[size]}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800 transition-colors">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">{title}</h2>
-          <button 
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50 transition-colors">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight transition-colors">{title}</h2>
+          <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors"
+            aria-label="Fechar"
+            className="p-2 text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-xl transition-all"
           >
             <X className="w-5 h-5" />
           </button>

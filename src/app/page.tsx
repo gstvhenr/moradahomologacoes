@@ -4,19 +4,24 @@ import React, { useState } from 'react';
 import { useHomologationTasks } from '@/lib/useHomologationTasks';
 import { useCarrierDocuments } from '@/lib/useCarrierDocuments';
 import { useThemeToggle } from '@/lib/useThemeToggle';
+import { useAuth } from '@/lib/useAuth';
 import { HomologationsView } from '@/components/HomologationsView';
 import { HomologationsListView } from '@/components/HomologationsListView';
+import { ArchivedView } from '@/components/ArchivedView';
 import { HomologationDetail } from '@/components/HomologationDetail';
 import { Sidebar } from '@/components/Sidebar';
 import { Modal } from '@/components/Modal';
 import { NewTaskModal } from '@/components/NewTaskModal';
 import { NewDocumentModal } from '@/components/NewDocumentModal';
+import { LoginPage } from '@/components/LoginPage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'list' | 'kanban'>('list');
+  const [showArchived, setShowArchived] = useState(false);
   const { theme, mounted, toggleTheme } = useThemeToggle();
-  const { tasks, selectedTask, setSelectedTask, updateTask, createTask } = useHomologationTasks();
+  const { tasks, archivedTasks, selectedTask, setSelectedTask, updateTask, createTask, archiveTask, restoreTask } = useHomologationTasks();
   const { createDocument } = useCarrierDocuments();
+  const { user, error, login, logout, isAuthenticated, isEditor } = useAuth();
 
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [isNewDocModalOpen, setIsNewDocModalOpen] = useState(false);
@@ -25,14 +30,19 @@ export default function App() {
     return <div className="flex h-screen bg-gray-50 items-center justify-center text-gray-500">Carregando...</div>;
   }
 
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={login} error={error} />;
+  }
+
   return (
     <div className="flex h-screen bg-gradient-to-br from-indigo-100 via-slate-50 to-blue-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 font-sans selection:bg-indigo-200 transition-colors duration-300">
 
       <Sidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        theme={theme}
-        onToggleTheme={toggleTheme}
+        userName={user?.name}
+        userRole={user?.role}
+        onLogout={logout}
       />
 
       {/* Main Content */}
@@ -41,18 +51,31 @@ export default function App() {
         <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] rounded-full bg-indigo-400/10 blur-[120px] pointer-events-none" />
 
         <div className="flex-1 p-6 overflow-y-auto relative z-10">
-          {activeTab === 'list' && (
-            <HomologationsListView
-              tasks={tasks}
+          {showArchived ? (
+            <ArchivedView
+              tasks={archivedTasks}
               onTaskClick={setSelectedTask}
-              onAddTask={() => setIsNewTaskModalOpen(true)}
+              onRestoreTask={restoreTask}
+              onBack={() => setShowArchived(false)}
             />
-          )}
-          {activeTab === 'kanban' && (
-            <HomologationsView
-              tasks={tasks}
-              onTaskClick={setSelectedTask}
-            />
+          ) : (
+            <>
+              {activeTab === 'list' && (
+                <HomologationsListView
+                  tasks={tasks}
+                  onTaskClick={setSelectedTask}
+                  onAddTask={isEditor ? () => setIsNewTaskModalOpen(true) : undefined}
+                  onNavigateArchived={() => setShowArchived(true)}
+                />
+              )}
+              {activeTab === 'kanban' && (
+                <HomologationsView
+                  tasks={tasks}
+                  onTaskClick={setSelectedTask}
+                  onArchiveTask={archiveTask}
+                />
+              )}
+            </>
           )}
         </div>
       </main>
@@ -68,6 +91,8 @@ export default function App() {
           <HomologationDetail
             task={selectedTask}
             onUpdate={updateTask}
+            onArchive={archiveTask}
+            readOnly={!isEditor}
           />
         )}
       </Modal>

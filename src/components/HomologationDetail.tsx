@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
-import { HomologationTask, ChecklistItem, HomologationStatus, ChecklistStatus, Subtask } from '../types';
-import { Badge, Button, Input, Label, Textarea } from './ui';
-import { formatDate } from '../lib/utils';
-import { CheckCircle2, Circle, Plus, Trash2, User, Edit2, Check } from 'lucide-react';
+import { HomologationTask, ChecklistItem, HomologationStatus, ChecklistStatus, Subtask, SubtaskType } from '../types';
+import { Button, Input, Label, Textarea } from './ui';
+
+import {
+  CheckCircle2, Plus, Trash2, User, Edit2, Check,
+  Link as LinkIcon, Archive, Hash, Type, DollarSign, Paperclip,
+  CheckSquare, List, CircleDot, ChevronDown
+} from 'lucide-react';
 
 interface Props {
   task: HomologationTask;
   onUpdate: (task: HomologationTask) => void;
+  onArchive?: (taskId: string) => void;
+  readOnly?: boolean;
 }
 
 const STATUS_COLORS: Record<ChecklistStatus, string> = {
@@ -17,27 +23,62 @@ const STATUS_COLORS: Record<ChecklistStatus, string> = {
   Done: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-400'
 };
 
-export function HomologationDetail({ task, onUpdate }: Props) {
+const STATUS_LABELS: Record<ChecklistStatus, string> = {
+  NotStarted: 'Não Iniciado',
+  Pending: 'Em andamento',
+  Sent: 'Enviado',
+  WaitingOtherSector: 'Aguardando Setor',
+  Done: 'Concluído'
+};
+
+const SUBTASK_TYPE_CONFIG: Record<SubtaskType, { label: string; icon: React.ReactNode; color: string }> = {
+  text: { label: 'Texto', icon: <Type className="w-3 h-3" />, color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/30' },
+  number: { label: 'Número', icon: <Hash className="w-3 h-3" />, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30' },
+  currency: { label: 'Monetário', icon: <DollarSign className="w-3 h-3" />, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/30' },
+  attachment: { label: 'Anexo', icon: <Paperclip className="w-3 h-3" />, color: 'text-orange-500 bg-orange-50 dark:bg-orange-900/30' },
+  checkbox: { label: 'Check-box', icon: <CheckSquare className="w-3 h-3" />, color: 'text-teal-500 bg-teal-50 dark:bg-teal-900/30' },
+  select: { label: 'Seleção múltipla', icon: <List className="w-3 h-3" />, color: 'text-purple-500 bg-purple-50 dark:bg-purple-900/30' },
+  'single-select': { label: 'Seleção única', icon: <CircleDot className="w-3 h-3" />, color: 'text-rose-500 bg-rose-50 dark:bg-rose-900/30' },
+};
+
+export function HomologationDetail({ task, onUpdate, onArchive, readOnly = false }: Props) {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newChecklistTitle, setNewChecklistTitle] = useState('');
   const [newChecklistResponsible, setNewChecklistResponsible] = useState('');
-  const [newSubtaskTitle, setNewSubtaskTitle] = useState<Record<string, string>>({});
-  
+
+  const [addingSubtaskFor, setAddingSubtaskFor] = useState<string | null>(null);
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState('');
+  const [newSubtaskType, setNewSubtaskType] = useState<SubtaskType>('text');
+  const [newSubtaskOptions, setNewSubtaskOptions] = useState('');
+
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editingTaskTitle, setEditingTaskTitle] = useState('');
-  
   const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
   const [editingSubtaskTitle, setEditingSubtaskTitle] = useState('');
 
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
+
+  const toggleExpand = (id: string) => {
+    setExpandedTasks(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (readOnly) return;
     onUpdate({ ...task, status: e.target.value as HomologationStatus });
   };
 
   const handleNotesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (readOnly) return;
     onUpdate({ ...task, notes: e.target.value });
   };
 
   const handleAddChecklist = () => {
+    if (readOnly) return;
     if (!newChecklistTitle.trim()) return;
     const newItem: ChecklistItem = {
       id: crypto.randomUUID(),
@@ -53,43 +94,65 @@ export function HomologationDetail({ task, onUpdate }: Props) {
   };
 
   const handleChecklistStatusChange = (id: string, status: ChecklistStatus) => {
-    const updated = task.checklist.map(item => {
-      if (item.id === id) {
-        return { ...item, status };
-      }
-      return item;
-    });
+    if (readOnly) return;
+    const updated = task.checklist.map(item =>
+      item.id === id ? { ...item, status } : item
+    );
     onUpdate({ ...task, checklist: updated });
   };
 
   const removeChecklistItem = (id: string) => {
+    if (readOnly) return;
     onUpdate({ ...task, checklist: task.checklist.filter(i => i.id !== id) });
   };
 
   const handleAddSubtask = (checklistItemId: string) => {
-    const title = newSubtaskTitle[checklistItemId];
-    if (!title?.trim()) return;
-    
+    if (readOnly) return;
+    if (!newSubtaskTitle.trim()) return;
+    const needsOptions = newSubtaskType === 'select' || newSubtaskType === 'single-select';
+    const parsedOptions = needsOptions
+      ? newSubtaskOptions.split(',').map(o => o.trim()).filter(Boolean)
+      : undefined;
+    const defaultValue = getDefaultValue(newSubtaskType);
+
     const updated = task.checklist.map(item => {
       if (item.id === checklistItemId) {
         const newSubtask: Subtask = {
           id: crypto.randomUUID(),
-          title: title,
-          status: 'NotStarted'
+          title: newSubtaskTitle,
+          type: newSubtaskType,
+          status: 'NotStarted',
+          value: defaultValue,
+          options: parsedOptions,
         };
         return { ...item, subtasks: [...(item.subtasks || []), newSubtask] };
       }
       return item;
     });
     onUpdate({ ...task, checklist: updated });
-    setNewSubtaskTitle(prev => ({ ...prev, [checklistItemId]: '' }));
+    setNewSubtaskTitle('');
+    setNewSubtaskType('text');
+    setNewSubtaskOptions('');
+    setAddingSubtaskFor(null);
   };
 
-  const handleSubtaskStatusChange = (checklistItemId: string, subtaskId: string, status: ChecklistStatus) => {
+  const getDefaultValue = (type: SubtaskType): string | number | boolean | string[] => {
+    switch (type) {
+      case 'number': return 0;
+      case 'currency': return 0;
+      case 'checkbox': return false;
+      case 'select': return [];
+      case 'single-select': return '';
+      default: return '';
+    }
+  };
+
+  const handleSubtaskValueChange = (checklistItemId: string, subtaskId: string, value: string | number | boolean | string[]) => {
+    if (readOnly) return;
     const updated = task.checklist.map(item => {
       if (item.id === checklistItemId) {
-        const updatedSubtasks = (item.subtasks || []).map(st => 
-          st.id === subtaskId ? { ...st, status } : st
+        const updatedSubtasks = (item.subtasks || []).map(st =>
+          st.id === subtaskId ? { ...st, value } : st
         );
         return { ...item, subtasks: updatedSubtasks };
       }
@@ -98,11 +161,27 @@ export function HomologationDetail({ task, onUpdate }: Props) {
     onUpdate({ ...task, checklist: updated });
   };
 
-  const removeSubtask = (checklistItemId: string, subtaskId: string) => {
+  const handleSubtaskStatusChange = (checklistItemId: string, subtaskId: string, status: ChecklistStatus) => {
+    if (readOnly) return;
     const updated = task.checklist.map(item => {
       if (item.id === checklistItemId) {
-        const updatedSubtasks = (item.subtasks || []).filter(st => st.id !== subtaskId);
-        return { ...item, subtasks: updatedSubtasks };
+        const updatedSubtasks = (item.subtasks || []).map(st =>
+          st.id === subtaskId ? { ...st, status } : st
+        );
+        const allDone = updatedSubtasks.length > 0 && updatedSubtasks.every(st => st.status === 'Done');
+        const newItemStatus = allDone ? 'Done' as ChecklistStatus : (item.status === 'Done' ? 'Pending' as ChecklistStatus : item.status);
+        return { ...item, subtasks: updatedSubtasks, status: newItemStatus };
+      }
+      return item;
+    });
+    onUpdate({ ...task, checklist: updated });
+  };
+
+  const removeSubtask = (checklistItemId: string, subtaskId: string) => {
+    if (readOnly) return;
+    const updated = task.checklist.map(item => {
+      if (item.id === checklistItemId) {
+        return { ...item, subtasks: (item.subtasks || []).filter(st => st.id !== subtaskId) };
       }
       return item;
     });
@@ -110,11 +189,9 @@ export function HomologationDetail({ task, onUpdate }: Props) {
   };
 
   const saveTaskEdit = (id: string) => {
-    if (!editingTaskTitle.trim()) {
-      setEditingTaskId(null);
-      return;
-    }
-    const updated = task.checklist.map(item => 
+    if (readOnly) return;
+    if (!editingTaskTitle.trim()) { setEditingTaskId(null); return; }
+    const updated = task.checklist.map(item =>
       item.id === id ? { ...item, title: editingTaskTitle } : item
     );
     onUpdate({ ...task, checklist: updated });
@@ -122,13 +199,11 @@ export function HomologationDetail({ task, onUpdate }: Props) {
   };
 
   const saveSubtaskEdit = (checklistItemId: string, subtaskId: string) => {
-    if (!editingSubtaskTitle.trim()) {
-      setEditingSubtaskId(null);
-      return;
-    }
+    if (readOnly) return;
+    if (!editingSubtaskTitle.trim()) { setEditingSubtaskId(null); return; }
     const updated = task.checklist.map(item => {
       if (item.id === checklistItemId) {
-        const updatedSubtasks = (item.subtasks || []).map(st => 
+        const updatedSubtasks = (item.subtasks || []).map(st =>
           st.id === subtaskId ? { ...st, title: editingSubtaskTitle } : st
         );
         return { ...item, subtasks: updatedSubtasks };
@@ -139,210 +214,552 @@ export function HomologationDetail({ task, onUpdate }: Props) {
     setEditingSubtaskId(null);
   };
 
+  const allSubtasks = task.checklist.flatMap(c => c.subtasks || []);
+  const completedCount = allSubtasks.filter(s => s.status === 'Done').length;
+  const totalCount = allSubtasks.length;
+  const overallProgress = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+
+  const renderSubtaskInput = (item: ChecklistItem, subtask: Subtask) => {
+    switch (subtask.type) {
+      case 'number':
+        return (
+          <Input
+            type="number"
+            value={String(subtask.value ?? '')}
+            onChange={(e) => handleSubtaskValueChange(item.id, subtask.id, Number(e.target.value))}
+            disabled={readOnly}
+            className="h-8 text-sm rounded-lg w-32"
+            placeholder="0"
+          />
+        );
+      case 'currency':
+        return (
+          <div className="flex items-center gap-1">
+            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">R$</span>
+            <Input
+              type="number"
+              step="0.01"
+              value={String(subtask.value ?? '')}
+              onChange={(e) => handleSubtaskValueChange(item.id, subtask.id, Number(e.target.value))}
+              disabled={readOnly}
+              className="h-8 text-sm rounded-lg w-32"
+              placeholder="0,00"
+            />
+          </div>
+        );
+      case 'checkbox':
+        return (
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={Boolean(subtask.value)}
+              onChange={(e) => handleSubtaskValueChange(item.id, subtask.id, e.target.checked)}
+              disabled={readOnly}
+              className="rounded border-gray-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+            />
+            <span className={`text-xs ${subtask.value ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
+              {subtask.value ? 'Sim' : 'Não'}
+            </span>
+          </label>
+        );
+      case 'attachment': {
+        const url = String(subtask.value ?? '');
+        const hasUrl = url.startsWith('http');
+        return (
+          <div className="flex items-center gap-2">
+            {hasUrl ? (
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-700/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
+              >
+                <Paperclip className="w-3 h-3" />
+                Abrir documento ↗
+              </a>
+            ) : (
+              <>
+                <Input
+                  type="text"
+                  value={url}
+                  onChange={(e) => handleSubtaskValueChange(item.id, subtask.id, e.target.value)}
+                  disabled={readOnly}
+                  className="h-8 text-sm rounded-lg flex-1"
+                  placeholder="URL"
+                />
+                <Paperclip className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+              </>
+            )}
+          </div>
+        );
+      }
+      case 'select': {
+        const selectedValues = Array.isArray(subtask.value) ? subtask.value : [];
+        return (
+          <div className="flex flex-wrap gap-1.5">
+            {(subtask.options || []).map(opt => {
+              const isSelected = selectedValues.includes(opt);
+              return (
+                <button
+                  key={opt}
+                  onClick={() => {
+                    const next = isSelected
+                      ? selectedValues.filter(v => v !== opt)
+                      : [...selectedValues, opt];
+                    handleSubtaskValueChange(item.id, subtask.id, next);
+                  }}
+                  className={`text-xs px-2.5 py-1 rounded-lg border transition-all font-medium ${isSelected
+                    ? 'bg-indigo-100 dark:bg-indigo-900/40 border-indigo-300 dark:border-indigo-600 text-indigo-700 dark:text-indigo-300'
+                    : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-indigo-200'
+                    }`}
+                >
+                  {opt}
+                </button>
+              );
+            })}
+          </div>
+        );
+      }
+      case 'single-select':
+        return (
+          <select
+            value={String(subtask.value ?? '')}
+            onChange={(e) => handleSubtaskValueChange(item.id, subtask.id, e.target.value)}
+            disabled={readOnly}
+            aria-label={`Seleção: ${subtask.title}`}
+            className="text-xs rounded-lg border-gray-200 dark:border-slate-700 p-1.5 border transition-colors bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 focus:ring-indigo-500 disabled:cursor-default"
+          >
+            <option value="">Selecione...</option>
+            {(subtask.options || []).map(opt => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+        );
+      default:
+        return (
+          <Input
+            type="text"
+            value={String(subtask.value ?? '')}
+            onChange={(e) => handleSubtaskValueChange(item.id, subtask.id, e.target.value)}
+            disabled={readOnly}
+            className="h-8 text-sm rounded-lg flex-1"
+            placeholder="Valor..."
+          />
+        );
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-8">
-      {/* Header Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border border-gray-100 dark:border-slate-700 transition-colors">
+    <div className={`flex flex-col gap-6 ${readOnly ? '[&_input]:opacity-80 [&_select]:opacity-80 [&_textarea]:opacity-80' : ''}`}>
+      {/* Progress Overview */}
+      <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/30 transition-colors">
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Progresso Geral</span>
+            <span className={`text-sm font-bold ${overallProgress === 100 ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600 dark:text-indigo-400'}`}>{overallProgress}%</span>
+          </div>
+          <div className="w-full bg-white/60 dark:bg-slate-700/60 rounded-full h-2.5 overflow-hidden shadow-inner">
+            <div
+              className={`progress-bar-fill h-full rounded-full transition-all duration-700 ease-out ${overallProgress === 100 ? 'bg-gradient-to-r from-emerald-400 to-emerald-500' : 'bg-gradient-to-r from-indigo-400 to-blue-500'}`}
+              ref={(el) => { if (el) el.style.width = `${overallProgress}%`; }}
+            />
+          </div>
+        </div>
+        <div className="text-right pl-4 border-l border-indigo-200/50 dark:border-indigo-700/50">
+          <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{completedCount}/{totalCount}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">tarefas</p>
+        </div>
+      </div>
+
+      {/* Status | Prazo | Empresa | Filial */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 rounded-xl bg-amber-50/40 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30">
         <div>
-          <Label className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider transition-colors">Status da Homologação</Label>
-          <select 
-            value={task.status} 
+          <Label className="text-xs text-amber-700 dark:text-amber-400 uppercase tracking-wider font-semibold">Status</Label>
+          <select
+            value={task.status}
             onChange={handleStatusChange}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-2 border transition-colors"
+            disabled={readOnly}
+            aria-label="Status da Homologação"
+            className="mt-1.5 block w-full rounded-xl border-amber-200 dark:border-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white p-2.5 border disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <option value="Not Started">Não Iniciado</option>
             <option value="In Progress">Em Andamento</option>
             <option value="Waiting on Client">Ação Pendente</option>
-            <option value="Approved">Concluindo</option>
+            <option value="Approved">Finalizado</option>
             <option value="Rejected">Rejeitado</option>
           </select>
         </div>
         <div>
-          <Label className="text-xs text-gray-500 dark:text-slate-400 uppercase tracking-wider transition-colors">Prazo</Label>
-          <Input 
-            type="date" 
-            value={task.deadline} 
-            onChange={(e) => onUpdate({ ...task, deadline: e.target.value })}
-            className="mt-1"
+          <Label className="text-xs text-amber-700 dark:text-amber-400 uppercase tracking-wider font-semibold">Prazo</Label>
+          <Input
+            type="date"
+            value={task.deadline}
+            onChange={(e) => { if (!readOnly) onUpdate({ ...task, deadline: e.target.value }); }}
+            disabled={readOnly}
+            className="mt-1.5 rounded-xl"
           />
+        </div>
+        <div>
+          <Label className="text-xs text-amber-700 dark:text-amber-400 uppercase tracking-wider font-semibold">Empresa</Label>
+          <select
+            value={task.empresa || ''}
+            onChange={(e) => { if (!readOnly) onUpdate({ ...task, empresa: e.target.value, filial: '' }); }}
+            disabled={readOnly}
+            aria-label="Empresa"
+            className="mt-1.5 block w-full rounded-xl border-amber-200 dark:border-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white p-2.5 border disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <option value="">Selecione...</option>
+            <option value="Morada">Morada</option>
+            <option value="Itaobi">Itaobi</option>
+          </select>
+        </div>
+        <div>
+          <Label className="text-xs text-amber-700 dark:text-amber-400 uppercase tracking-wider font-semibold">Filial</Label>
+          <select
+            value={task.filial || ''}
+            onChange={(e) => { if (!readOnly) onUpdate({ ...task, filial: e.target.value }); }}
+            aria-label="Filial"
+            disabled={readOnly || !task.empresa}
+            className="mt-1.5 block w-full rounded-xl border-amber-200 dark:border-slate-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white p-2.5 border disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <option value="">Selecione...</option>
+            {task.empresa === 'Morada' && (
+              <>
+                <option value="Araraquara (Matriz)">Araraquara (Matriz)</option>
+                <option value="Americana (Filial)">Americana (Filial)</option>
+              </>
+            )}
+            {task.empresa === 'Itaobi' && (
+              <option value="Jardinópolis (Matriz)">Jardinópolis (Matriz)</option>
+            )}
+          </select>
+        </div>
+      </div>
+
+      {/* Contact Info */}
+      <div className="p-4 rounded-xl bg-blue-50/40 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30">
+        <h3 className="text-xs font-semibold text-blue-700 dark:text-blue-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <User className="w-3.5 h-3.5" />
+          Informações de Contato
+        </h3>
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <Label className="text-xs text-slate-500 dark:text-slate-400">Nome</Label>
+              <Input
+                value={task.contactName || ''}
+                onChange={(e) => { if (!readOnly) onUpdate({ ...task, contactName: e.target.value }); }}
+                disabled={readOnly}
+                placeholder="Nome do contato"
+                className="mt-1 h-9 rounded-xl"
+              />
+            </div>
+            <div>
+              <Label className="text-xs text-slate-500 dark:text-slate-400">E-mail</Label>
+              <Input
+                type="email"
+                value={task.contactEmail || ''}
+                onChange={(e) => { if (!readOnly) onUpdate({ ...task, contactEmail: e.target.value }); }}
+                disabled={readOnly}
+                placeholder="email@exemplo.com"
+                className="mt-1 h-9 rounded-xl"
+              />
+            </div>
+            <div>
+              <Label className="text-xs text-slate-500 dark:text-slate-400">Telefone</Label>
+              <div className="flex items-center gap-2 mt-1">
+                <Input
+                  type="tel"
+                  value={task.contactPhone || ''}
+                  onChange={(e) => { if (!readOnly) onUpdate({ ...task, contactPhone: e.target.value }); }}
+                  disabled={readOnly}
+                  placeholder="(XX) XXXXX-XXXX"
+                  className="h-9 rounded-xl flex-1"
+                />
+                <label className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 whitespace-nowrap cursor-pointer select-none bg-white dark:bg-slate-800 px-2.5 py-2 rounded-xl border border-blue-200 dark:border-slate-700">
+                  <input
+                    type="checkbox"
+                    checked={task.contactIsWhatsApp || false}
+                    onChange={(e) => { if (!readOnly) onUpdate({ ...task, contactIsWhatsApp: e.target.checked }); }}
+                    disabled={readOnly}
+                    className="rounded border-gray-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500 h-3.5 w-3.5"
+                  />
+                  WhatsApp
+                </label>
+              </div>
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs text-slate-500 dark:text-slate-400">Link / Plataforma</Label>
+            <div className="flex items-center gap-2 mt-1">
+              <LinkIcon className="w-4 h-4 text-blue-400 dark:text-blue-500 shrink-0" />
+              <Input
+                value={task.contactLink || ''}
+                onChange={(e) => { if (!readOnly) onUpdate({ ...task, contactLink: e.target.value }); }}
+                disabled={readOnly}
+                placeholder="https://plataforma.com.br"
+                className="h-9 rounded-xl"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Checklist */}
-      <div>
+      <div className="p-4 rounded-xl bg-slate-50/60 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white flex items-center gap-2 transition-colors">
-              <CheckCircle2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400 transition-colors" />
-              Tarefas
-            </h3>
-            <span className="text-sm text-gray-500 dark:text-slate-400 transition-colors ml-2">
-              {task.checklist.filter(c => c.status === 'Done').length} de {task.checklist.length} concluídos
+          <h3 className="text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500" />
+            Tarefas
+            <span className="text-xs font-normal text-gray-400 dark:text-slate-500 normal-case tracking-normal ml-1">
+              {completedCount} de {totalCount}
             </span>
-          </div>
-          <Button onClick={() => setIsAddingTask(!isAddingTask)} variant="outline" size="sm" className="gap-2">
-            <Plus className="w-4 h-4" />
-            Adicionar nova tarefa
-          </Button>
+          </h3>
+          {!readOnly && (
+            <Button onClick={() => setIsAddingTask(!isAddingTask)} variant="outline" size="sm" className="gap-1.5 rounded-xl text-xs">
+              <Plus className="w-3.5 h-3.5" />
+              Nova tarefa
+            </Button>
+          )}
         </div>
 
         {isAddingTask && (
-          <div className="flex gap-2 mb-4 items-start p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-lg border border-indigo-100 dark:border-indigo-800/30">
+          <div className="flex gap-2 mb-4 items-start p-4 bg-indigo-50/60 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800/30">
             <div className="flex-1 space-y-2">
-              <Input 
-                placeholder="Nova tarefa..." 
+              <Input
+                placeholder="Nome da tarefa..."
                 value={newChecklistTitle}
                 onChange={(e) => setNewChecklistTitle(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddChecklist()}
                 autoFocus
+                className="rounded-xl"
               />
-              <Input 
-                placeholder="Responsável (ex: Comercial, Fiscal)" 
+              <Input
+                placeholder="Responsável (ex: Comercial, Fiscal)"
                 value={newChecklistResponsible}
                 onChange={(e) => setNewChecklistResponsible(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddChecklist()}
-                className="text-xs"
+                className="text-xs rounded-xl"
               />
             </div>
-            <Button onClick={handleAddChecklist} variant="default" className="h-10">
+            <Button onClick={handleAddChecklist} variant="default" className="h-10 rounded-xl">
               Salvar
             </Button>
           </div>
         )}
 
         <div className="space-y-3">
-          {task.checklist.map(item => (
-            <div key={item.id} className="flex flex-col gap-3 p-3 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg shadow-sm hover:border-indigo-300 dark:hover:border-indigo-500/50 transition-colors">
-              <div className="flex items-start gap-3">
-                <div className="flex-1 min-w-0">
-                  {editingTaskId === item.id ? (
-                    <div className="flex items-center gap-2">
-                      <Input 
-                        value={editingTaskTitle}
-                        onChange={(e) => setEditingTaskTitle(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && saveTaskEdit(item.id)}
-                        autoFocus
-                        className="h-8 text-sm"
-                      />
-                      <Button size="icon" variant="ghost" onClick={() => saveTaskEdit(item.id)} className="h-8 w-8 text-emerald-600">
-                        <Check className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 group">
-                      <p className={`text-sm font-medium transition-colors ${item.status === 'Done' ? 'text-gray-500 dark:text-slate-400 line-through' : 'text-gray-900 dark:text-white'}`}>
-                        {item.title}
-                      </p>
-                      <button 
-                        onClick={() => {
-                          setEditingTaskId(item.id);
-                          setEditingTaskTitle(item.title);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-indigo-600 transition-all"
-                      >
-                        <Edit2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center gap-3 mt-2">
-                    <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-slate-400 transition-colors">
-                      <User className="w-3 h-3" /> {item.responsible}
-                    </span>
-                    <select
-                      value={item.status}
-                      onChange={(e) => handleChecklistStatusChange(item.id, e.target.value as ChecklistStatus)}
-                      className={`text-xs rounded-md border-transparent p-1 border transition-colors font-medium focus:ring-0 ${STATUS_COLORS[item.status]}`}
-                    >
-                      <option value="NotStarted">Não Iniciado</option>
-                      <option value="Pending">Em andamento</option>
-                      <option value="Sent">Enviado</option>
-                      <option value="WaitingOtherSector">Aguardando Setor</option>
-                      <option value="Done">Concluído</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button 
-                    onClick={() => removeChecklistItem(item.id)}
-                    className="text-gray-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 p-1 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+          {task.checklist.map(item => {
+            const isExpanded = expandedTasks.has(item.id);
+            const subtaskCount = (item.subtasks || []).length;
+            const subtaskDone = (item.subtasks || []).filter(s => s.status === 'Done').length;
 
-              {/* Subtasks - Always expanded */}
-              <div className="pl-4 mt-2 border-l-2 border-indigo-100 dark:border-indigo-900/50 space-y-2">
-                {(item.subtasks || []).map(subtask => (
-                  <div key={subtask.id} className="flex items-center gap-2 group">
-                    {editingSubtaskId === subtask.id ? (
-                      <div className="flex items-center gap-2 flex-1">
-                        <Input 
-                          value={editingSubtaskTitle}
-                          onChange={(e) => setEditingSubtaskTitle(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && saveSubtaskEdit(item.id, subtask.id)}
-                          autoFocus
-                          className="h-8 text-sm"
-                        />
-                        <Button size="icon" variant="ghost" onClick={() => saveSubtaskEdit(item.id, subtask.id)} className="h-8 w-8 text-emerald-600">
-                          <Check className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <span className={`flex-1 text-sm transition-colors flex items-center gap-2 ${subtask.status === 'Done' ? 'text-gray-500 dark:text-slate-400 line-through' : 'text-gray-700 dark:text-slate-300'}`}>
-                          {subtask.title}
-                          <button 
-                            onClick={() => {
-                              setEditingSubtaskId(subtask.id);
-                              setEditingSubtaskTitle(subtask.title);
-                            }}
-                            className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-indigo-600 transition-all"
-                          >
-                            <Edit2 className="w-3 h-3" />
-                          </button>
-                        </span>
-                        
-                        <select
-                          value={subtask.status}
-                          onChange={(e) => handleSubtaskStatusChange(item.id, subtask.id, e.target.value as ChecklistStatus)}
-                          className={`text-xs rounded-md border-transparent p-1 border transition-colors font-medium focus:ring-0 ${STATUS_COLORS[subtask.status]}`}
+            const statusBg: Record<string, string> = {
+              NotStarted: 'bg-white dark:bg-slate-800/80 border-gray-100 dark:border-slate-700/80',
+              Pending: 'bg-blue-50/30 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/40',
+              Sent: 'bg-amber-50/30 dark:bg-amber-900/10 border-amber-100 dark:border-amber-800/40',
+              WaitingOtherSector: 'bg-purple-50/30 dark:bg-purple-900/10 border-purple-100 dark:border-purple-800/40',
+              Done: 'bg-emerald-50/30 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/40',
+            };
+
+            return (
+              <div key={item.id} className={`border rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden ${statusBg[item.status] || statusBg.NotStarted}`}>
+                {/* Collapsible Header */}
+                <button
+                  onClick={() => toggleExpand(item.id)}
+                  className="flex items-center gap-3 w-full text-left px-4 py-3 hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors"
+                >
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ${isExpanded ? '' : '-rotate-90'}`} />
+                  <span className="text-sm font-medium text-gray-800 dark:text-white flex-1 truncate">{item.title}</span>
+                  {subtaskCount > 0 && (
+                    <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">
+                      {subtaskDone}/{subtaskCount}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-slate-400 shrink-0">
+                    <User className="w-3 h-3" /> {item.responsible}
+                  </span>
+                  <span className={`text-xs rounded-lg px-2 py-0.5 font-medium shrink-0 ${STATUS_COLORS[item.status]}`}>
+                    {STATUS_LABELS[item.status]}
+                  </span>
+                </button>
+
+                {/* Expanded Content */}
+                {isExpanded && (
+                  <div className="px-4 pb-4 border-t border-gray-50 dark:border-slate-700/50">
+                    {/* Task actions */}
+                    <div className="flex items-center gap-2 py-2">
+                      <select
+                        value={item.status}
+                        onChange={(e) => handleChecklistStatusChange(item.id, e.target.value as ChecklistStatus)}
+                        onClick={(e) => e.stopPropagation()}
+                        disabled={readOnly}
+                        aria-label="Status da tarefa"
+                        className={`text-xs rounded-lg border-transparent p-1 border transition-colors font-medium focus:ring-0 disabled:cursor-default ${STATUS_COLORS[item.status]}`}
+                      >
+                        <option value="NotStarted">Não Iniciado</option>
+                        <option value="Pending">Em andamento</option>
+                        <option value="Sent">Enviado</option>
+                        <option value="WaitingOtherSector">Aguardando Setor</option>
+                        <option value="Done">Concluído</option>
+                      </select>
+                      <div className="flex-1" />
+                      {editingTaskId === item.id ? (
+                        <div className="flex items-center gap-2 flex-1">
+                          <Input
+                            value={editingTaskTitle}
+                            onChange={(e) => setEditingTaskTitle(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && saveTaskEdit(item.id)}
+                            autoFocus
+                            className="h-8 text-sm rounded-lg"
+                          />
+                          <Button size="icon" variant="ghost" onClick={() => saveTaskEdit(item.id)} className="h-8 w-8 text-emerald-600">
+                            <Check className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ) : !readOnly ? (
+                        <button
+                          onClick={() => { setEditingTaskId(item.id); setEditingTaskTitle(item.title); }}
+                          aria-label="Editar tarefa"
+                          className="text-slate-400 hover:text-indigo-600 p-1 transition-all"
                         >
-                          <option value="NotStarted">Não Iniciado</option>
-                          <option value="Pending">Em andamento</option>
-                          <option value="Sent">Enviado</option>
-                          <option value="WaitingOtherSector">Aguardando Setor</option>
-                          <option value="Done">Concluído</option>
-                        </select>
-                        
-                        <button 
-                          onClick={() => removeSubtask(item.id, subtask.id)}
-                          className="text-gray-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 p-1 opacity-0 group-hover:opacity-100 transition-all"
-                        >
-                          <Trash2 className="w-3 h-3" />
+                          <Edit2 className="w-3.5 h-3.5" />
                         </button>
-                      </>
-                    )}
+                      ) : null}
+                      {!readOnly && (
+                        <button
+                          onClick={() => removeChecklistItem(item.id)}
+                          aria-label="Remover tarefa"
+                          className="text-gray-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 p-1 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Subtasks */}
+                    <div className="pl-4 border-l-2 border-indigo-100 dark:border-indigo-900/50 space-y-2 mt-2">
+                      {(item.subtasks || []).map(subtask => {
+                        return (
+                          <div key={subtask.id} className="flex items-center gap-2 group py-1">
+                            {editingSubtaskId === subtask.id ? (
+                              <div className="flex items-center gap-2 flex-1">
+                                <Input
+                                  value={editingSubtaskTitle}
+                                  onChange={(e) => setEditingSubtaskTitle(e.target.value)}
+                                  onKeyDown={(e) => e.key === 'Enter' && saveSubtaskEdit(item.id, subtask.id)}
+                                  autoFocus
+                                  className="h-8 text-sm"
+                                />
+                                <Button size="icon" variant="ghost" onClick={() => saveSubtaskEdit(item.id, subtask.id)} className="h-8 w-8 text-emerald-600">
+                                  <Check className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <>
+                                <span className="text-sm text-gray-700 dark:text-slate-300 flex items-center gap-1.5 min-w-[80px]">
+                                  {subtask.title}
+                                  {!readOnly && (
+                                    <button
+                                      onClick={() => { setEditingSubtaskId(subtask.id); setEditingSubtaskTitle(subtask.title); }}
+                                      aria-label="Editar sub-tarefa"
+                                      className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-indigo-600 transition-all"
+                                    >
+                                      <Edit2 className="w-3 h-3" />
+                                    </button>
+                                  )}
+                                </span>
+
+                                <div className="flex-1">
+                                  {renderSubtaskInput(item, subtask)}
+                                </div>
+
+                                <select
+                                  value={subtask.status}
+                                  onChange={(e) => handleSubtaskStatusChange(item.id, subtask.id, e.target.value as ChecklistStatus)}
+                                  disabled={readOnly}
+                                  aria-label="Status da sub-tarefa"
+                                  className={`text-xs rounded-lg border-transparent p-1 border transition-colors font-medium focus:ring-0 disabled:cursor-default ${STATUS_COLORS[subtask.status]}`}
+                                >
+                                  <option value="NotStarted">Não Iniciado</option>
+                                  <option value="Pending">Em andamento</option>
+                                  <option value="Sent">Enviado</option>
+                                  <option value="WaitingOtherSector">Aguardando Setor</option>
+                                  <option value="Done">Concluído</option>
+                                </select>
+
+                                {!readOnly && (
+                                  <button
+                                    onClick={() => removeSubtask(item.id, subtask.id)}
+                                    aria-label="Remover sub-tarefa"
+                                    className="text-gray-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 p-1 opacity-0 group-hover:opacity-100 transition-all"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
+
+                      {/* Add subtask UI */}
+                      {addingSubtaskFor === item.id ? (
+                        <div className="space-y-2 p-3 bg-indigo-50/40 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-800/30 mt-2">
+                          <div className="flex gap-2 items-center">
+                            <select
+                              value={newSubtaskType}
+                              onChange={(e) => setNewSubtaskType(e.target.value as SubtaskType)}
+                              aria-label="Tipo da sub-tarefa"
+                              className="text-xs rounded-lg border-gray-200 dark:border-slate-700 p-1.5 border bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 focus:ring-indigo-500"
+                            >
+                              {Object.entries(SUBTASK_TYPE_CONFIG).map(([key, cfg]) => (
+                                <option key={key} value={key}>{cfg.label}</option>
+                              ))}
+                            </select>
+                            <Input
+                              placeholder="Nome do campo..."
+                              value={newSubtaskTitle}
+                              onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                              onKeyDown={(e) => e.key === 'Enter' && handleAddSubtask(item.id)}
+                              autoFocus
+                              className="h-8 text-sm rounded-lg flex-1"
+                            />
+                          </div>
+                          {(newSubtaskType === 'select' || newSubtaskType === 'single-select') && (
+                            <Input
+                              placeholder="Opções separadas por vírgula (ex: Opção A, Opção B, Opção C)"
+                              value={newSubtaskOptions}
+                              onChange={(e) => setNewSubtaskOptions(e.target.value)}
+                              className="h-8 text-xs rounded-lg"
+                            />
+                          )}
+                          <div className="flex gap-2">
+                            <Button onClick={() => handleAddSubtask(item.id)} variant="default" size="sm" className="rounded-lg text-xs">
+                              Adicionar
+                            </Button>
+                            <Button onClick={() => { setAddingSubtaskFor(null); setNewSubtaskTitle(''); setNewSubtaskType('text'); setNewSubtaskOptions(''); }} variant="ghost" size="sm" className="rounded-lg text-xs">
+                              Cancelar
+                            </Button>
+                          </div>
+                        </div>
+                      ) : !readOnly ? (
+                        <button
+                          onClick={() => setAddingSubtaskFor(item.id)}
+                          className="flex items-center gap-1.5 text-xs text-indigo-500 hover:text-indigo-700 dark:hover:text-indigo-300 mt-1 transition-colors font-medium"
+                        >
+                          <Plus className="w-3 h-3" />
+                          Adicionar campo
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
-                ))}
-                <div className="flex gap-2 mt-2 items-center">
-                  <Input 
-                    placeholder="Nova sub-tarefa..." 
-                    value={newSubtaskTitle[item.id] || ''}
-                    onChange={(e) => setNewSubtaskTitle(prev => ({ ...prev, [item.id]: e.target.value }))}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddSubtask(item.id)}
-                    className="h-8 text-sm"
-                  />
-                  <Button onClick={() => handleAddSubtask(item.id)} variant="secondary" className="h-8 px-3">
-                    <Plus className="w-3 h-3" />
-                  </Button>
-                </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
           {task.checklist.length === 0 && !isAddingTask && (
-            <div className="text-center py-6 text-slate-500 dark:text-slate-400 text-sm bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
+            <div className="text-center py-8 text-slate-400 dark:text-slate-500 text-sm bg-white/50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
               Nenhuma tarefa cadastrada. Adicione uma nova tarefa para começar.
             </div>
           )}
@@ -350,16 +767,29 @@ export function HomologationDetail({ task, onUpdate }: Props) {
       </div>
 
       {/* Notes */}
-      <div>
-        <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2 transition-colors">Observações Gerais</h3>
-        <Textarea 
+      <div className="p-4 rounded-xl bg-green-50/30 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30">
+        <h3 className="text-xs font-semibold text-green-700 dark:text-green-400 uppercase tracking-wider mb-3">Observações Gerais</h3>
+        <Textarea
           value={task.notes}
           onChange={handleNotesChange}
+          disabled={readOnly}
           placeholder="Anotações importantes sobre este cliente..."
-          className="h-32 resize-none"
+          className="h-28 resize-none rounded-xl bg-white dark:bg-slate-800"
         />
       </div>
+
+      {/* Concluir Button */}
+      {onArchive && !readOnly && (
+        <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
+          <Button
+            onClick={() => onArchive(task.id)}
+            className="gap-2 w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl px-6 py-3 text-sm font-semibold transition-all hover:scale-[1.01] shadow-lg shadow-emerald-600/20"
+          >
+            <Archive className="w-4 h-4" />
+            Concluir Homologação
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
-
