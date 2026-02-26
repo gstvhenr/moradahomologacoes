@@ -7,7 +7,6 @@ import { useThemeToggle } from '@/lib/useThemeToggle';
 import { useAuth } from '@/lib/useAuth';
 import { HomologationsView } from '@/components/HomologationsView';
 import { HomologationsListView } from '@/components/HomologationsListView';
-import { ArchivedView } from '@/components/ArchivedView';
 import { HomologationDetail } from '@/components/HomologationDetail';
 import { Sidebar } from '@/components/Sidebar';
 import { Modal } from '@/components/Modal';
@@ -17,9 +16,8 @@ import { LoginPage } from '@/components/LoginPage';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'list' | 'kanban'>('list');
-  const [showArchived, setShowArchived] = useState(false);
-  const { theme, mounted, toggleTheme } = useThemeToggle();
-  const { tasks, archivedTasks, selectedTask, setSelectedTask, updateTask, createTask, archiveTask, restoreTask } = useHomologationTasks();
+  const { mounted } = useThemeToggle();
+  const { tasks, selectedTask, setSelectedTask, updateTask, createTask } = useHomologationTasks();
   const { createDocument } = useCarrierDocuments();
   const { user, error, login, logout, isAuthenticated, isEditor } = useAuth();
 
@@ -51,31 +49,18 @@ export default function App() {
         <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] rounded-full bg-brand-400/10 blur-[120px] pointer-events-none" />
 
         <div className="flex-1 p-6 overflow-y-auto relative z-10">
-          {showArchived ? (
-            <ArchivedView
-              tasks={archivedTasks}
+          {activeTab === 'list' && (
+            <HomologationsListView
+              tasks={tasks}
               onTaskClick={setSelectedTask}
-              onRestoreTask={restoreTask}
-              onBack={() => setShowArchived(false)}
+              onAddTask={isEditor ? () => setIsNewTaskModalOpen(true) : undefined}
             />
-          ) : (
-            <>
-              {activeTab === 'list' && (
-                <HomologationsListView
-                  tasks={tasks}
-                  onTaskClick={setSelectedTask}
-                  onAddTask={isEditor ? () => setIsNewTaskModalOpen(true) : undefined}
-                  onNavigateArchived={() => setShowArchived(true)}
-                />
-              )}
-              {activeTab === 'kanban' && (
-                <HomologationsView
-                  tasks={tasks}
-                  onTaskClick={setSelectedTask}
-                  onArchiveTask={archiveTask}
-                />
-              )}
-            </>
+          )}
+          {activeTab === 'kanban' && (
+            <HomologationsView
+              tasks={tasks}
+              onTaskClick={setSelectedTask}
+            />
           )}
         </div>
       </main>
@@ -91,7 +76,6 @@ export default function App() {
           <HomologationDetail
             task={selectedTask}
             onUpdate={updateTask}
-            onArchive={archiveTask}
             readOnly={!isEditor}
           />
         )}

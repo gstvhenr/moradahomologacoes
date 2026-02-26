@@ -30,9 +30,10 @@ export function ArchivedView({ tasks, onTaskClick, onRestoreTask, onBack }: Prop
 
       <div className="flex-1 overflow-y-auto space-y-5 pb-8 pr-2">
         {tasks.map(task => {
-          const completedChecklist = task.checklist.filter(c => c.status === 'Done').length;
           const totalChecklist = task.checklist.length;
-          const progress = totalChecklist === 0 ? 0 : Math.round((completedChecklist / totalChecklist) * 100);
+          const isFinished = task.status === 'Approved' || task.status === 'Rejected';
+          const completedChecklist = isFinished ? totalChecklist : task.checklist.filter(c => c.status === 'Done').length;
+          const progress = isFinished ? 100 : (totalChecklist === 0 ? 0 : Math.round((completedChecklist / totalChecklist) * 100));
 
           return (
             <div

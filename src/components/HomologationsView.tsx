@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { HomologationTask, HomologationStatus } from '../types';
-import { Badge, Button } from './ui';
 import { formatDate } from '../lib/utils';
-import { Calendar, Clock, MoreHorizontal, Archive } from 'lucide-react';
+import { Calendar, MoreHorizontal } from 'lucide-react';
 
 interface Props {
   tasks: HomologationTask[];
   onTaskClick: (task: HomologationTask) => void;
-  onArchiveTask: (taskId: string) => void;
 }
 
 const COLUMNS: { id: HomologationStatus; title: string; color: string; headerColor: string }[] = [
@@ -16,6 +14,7 @@ const COLUMNS: { id: HomologationStatus; title: string; color: string; headerCol
   { id: 'Waiting on Client', title: 'Ação Pendente', color: 'bg-accent-50/80 dark:bg-accent-900/20 border-accent-200 dark:border-accent-800/50', headerColor: 'text-accent-700 dark:text-accent-400' },
   { id: 'Waiting on Sector', title: 'Aguardando Setor', color: 'bg-orange-50/80 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800/50', headerColor: 'text-orange-700 dark:text-orange-400' },
   { id: 'Approved', title: 'Finalizado', color: 'bg-emerald-50/80 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800/50', headerColor: 'text-emerald-700 dark:text-emerald-400' },
+  { id: 'Rejected', title: 'Rejeitado', color: 'bg-red-50/80 dark:bg-red-900/20 border-red-200 dark:border-red-800/50', headerColor: 'text-red-700 dark:text-red-400' },
 ];
 
 function isDeadlineExpired(deadline: string): boolean {
@@ -27,7 +26,7 @@ function isDeadlineExpired(deadline: string): boolean {
   return deadlineDate <= today;
 }
 
-export function HomologationsView({ tasks, onTaskClick, onArchiveTask }: Props) {
+export function HomologationsView({ tasks, onTaskClick }: Props) {
   return (
     <div className="h-full flex flex-col max-w-7xl mx-auto w-full">
       <div className="flex items-center justify-between mb-10">
@@ -52,9 +51,10 @@ export function HomologationsView({ tasks, onTaskClick, onArchiveTask }: Props) 
 
               <div className="p-4 flex-1 overflow-y-auto space-y-4">
                 {columnTasks.map(task => {
-                  const completedChecklist = task.checklist.filter(c => c.status === 'Done').length;
                   const totalChecklist = task.checklist.length;
-                  const progress = totalChecklist === 0 ? 0 : Math.round((completedChecklist / totalChecklist) * 100);
+                  const isFinished = task.status === 'Approved' || task.status === 'Rejected';
+                  const completedChecklist = isFinished ? totalChecklist : task.checklist.filter(c => c.status === 'Done').length;
+                  const progress = isFinished ? 100 : (totalChecklist === 0 ? 0 : Math.round((completedChecklist / totalChecklist) * 100));
 
                   return (
                     <div
@@ -101,20 +101,7 @@ export function HomologationsView({ tasks, onTaskClick, onArchiveTask }: Props) 
                         </div>
                       </div>
 
-                      {/* Archive button for Finalizado column */}
-                      {column.id === 'Approved' && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onArchiveTask(task.id);
-                          }}
-                          className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-xl border border-emerald-200 dark:border-emerald-800/50 transition-all duration-200 hover:scale-[1.02]"
-                          title="Arquivar como concluído"
-                        >
-                          <Archive className="w-3.5 h-3.5" />
-                          Arquivar
-                        </button>
-                      )}
+
                     </div>
                   );
                 })}

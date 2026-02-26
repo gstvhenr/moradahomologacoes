@@ -4,14 +4,13 @@ import { Button, Input, Label, Textarea } from './ui';
 
 import {
   CheckCircle2, Plus, Trash2, User, Edit2, Check,
-  Link as LinkIcon, Archive, Hash, Type, DollarSign, Paperclip,
+  Link as LinkIcon, Hash, Type, DollarSign, Paperclip,
   CheckSquare, List, CircleDot, ChevronDown
 } from 'lucide-react';
 
 interface Props {
   task: HomologationTask;
   onUpdate: (task: HomologationTask) => void;
-  onArchive?: (taskId: string) => void;
   readOnly?: boolean;
 }
 
@@ -41,7 +40,7 @@ const SUBTASK_TYPE_CONFIG: Record<SubtaskType, { label: string; icon: React.Reac
   'single-select': { label: 'Seleção única', icon: <CircleDot className="w-3 h-3" />, color: 'text-rose-500 bg-rose-50 dark:bg-rose-900/30' },
 };
 
-export function HomologationDetail({ task, onUpdate, onArchive, readOnly = false }: Props) {
+export function HomologationDetail({ task, onUpdate, readOnly = false }: Props) {
   const [isAddingTask, setIsAddingTask] = useState(false);
   const [newChecklistTitle, setNewChecklistTitle] = useState('');
   const [newChecklistResponsible, setNewChecklistResponsible] = useState('');
@@ -215,9 +214,10 @@ export function HomologationDetail({ task, onUpdate, onArchive, readOnly = false
   };
 
   const allSubtasks = task.checklist.flatMap(c => c.subtasks || []);
-  const completedCount = allSubtasks.filter(s => s.status === 'Done').length;
   const totalCount = allSubtasks.length;
-  const overallProgress = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+  const isFinished = task.status === 'Approved' || task.status === 'Rejected';
+  const completedCount = isFinished ? totalCount : allSubtasks.filter(s => s.status === 'Done').length;
+  const overallProgress = isFinished ? 100 : (totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100));
 
   const renderSubtaskInput = (item: ChecklistItem, subtask: Subtask) => {
     switch (subtask.type) {
@@ -779,18 +779,7 @@ export function HomologationDetail({ task, onUpdate, onArchive, readOnly = false
         />
       </div>
 
-      {/* Concluir Button */}
-      {onArchive && !readOnly && (
-        <div className="pt-2 border-t border-gray-100 dark:border-slate-800">
-          <Button
-            onClick={() => onArchive(task.id)}
-            className="gap-2 w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl px-6 py-3 text-sm font-semibold transition-all hover:scale-[1.01] shadow-lg shadow-emerald-600/20"
-          >
-            <Archive className="w-4 h-4" />
-            Concluir Homologação
-          </Button>
-        </div>
-      )}
+
     </div>
   );
 }

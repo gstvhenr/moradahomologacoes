@@ -2,13 +2,12 @@ import React from 'react';
 import { HomologationTask, HomologationStatus } from '../types';
 import { Badge, Button } from './ui';
 import { formatDate } from '../lib/utils';
-import { Calendar, Clock, MoreHorizontal, Plus, CheckCircle2, AlertCircle, PlayCircle, Clock4, Archive } from 'lucide-react';
+import { Calendar, Plus, CheckCircle2, AlertCircle, PlayCircle, Clock4 } from 'lucide-react';
 
 interface Props {
   tasks: HomologationTask[];
   onTaskClick: (task: HomologationTask) => void;
   onAddTask?: () => void;
-  onNavigateArchived: () => void;
 }
 
 function isDeadlineExpired(deadline: string): boolean {
@@ -20,7 +19,7 @@ function isDeadlineExpired(deadline: string): boolean {
   return deadlineDate <= today;
 }
 
-export function HomologationsListView({ tasks, onTaskClick, onAddTask, onNavigateArchived }: Props) {
+export function HomologationsListView({ tasks, onTaskClick, onAddTask }: Props) {
   const getStatusBadge = (status: HomologationStatus) => {
     switch (status) {
       case 'Not Started': return <Badge variant="neutral" className="gap-1"><Clock4 className="w-3 h-3" /> Não Iniciado</Badge>;
@@ -40,10 +39,6 @@ export function HomologationsListView({ tasks, onTaskClick, onAddTask, onNavigat
           <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight transition-colors">Homologações</h1>
         </div>
         <div className="flex gap-3">
-          <Button onClick={onNavigateArchived} className="gap-2 bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-500 dark:hover:bg-emerald-600 text-white shadow-lg shadow-emerald-600/20 dark:shadow-emerald-500/20 rounded-full px-8 py-6 text-sm font-semibold transition-all hover:scale-105">
-            <Archive className="w-5 h-5" />
-            Concluído
-          </Button>
           {onAddTask && (
             <Button onClick={onAddTask} className="gap-2 bg-brand-700 dark:bg-brand-600 hover:bg-brand-600 dark:hover:bg-brand-500 text-white shadow-lg shadow-brand-700/20 dark:shadow-brand-500/20 rounded-full px-8 py-6 text-sm font-semibold transition-all hover:scale-105">
               <Plus className="w-5 h-5" />
@@ -56,9 +51,10 @@ export function HomologationsListView({ tasks, onTaskClick, onAddTask, onNavigat
       <div className="flex-1 overflow-y-auto space-y-5 pb-8 pr-2">
         {tasks.map(task => {
           const allSubtasks = task.checklist.flatMap(c => c.subtasks || []);
-          const completedChecklist = allSubtasks.filter(s => s.status === 'Done').length;
           const totalChecklist = allSubtasks.length;
-          const progress = totalChecklist === 0 ? 0 : Math.round((completedChecklist / totalChecklist) * 100);
+          const isFinished = task.status === 'Approved' || task.status === 'Rejected';
+          const completedChecklist = isFinished ? totalChecklist : allSubtasks.filter(s => s.status === 'Done').length;
+          const progress = isFinished ? 100 : (totalChecklist === 0 ? 0 : Math.round((completedChecklist / totalChecklist) * 100));
 
           return (
             <div

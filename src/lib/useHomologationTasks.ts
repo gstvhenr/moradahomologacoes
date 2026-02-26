@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { useLocalStorage } from './useLocalStorage';
-import { initialTasks, initialArchivedTasks } from './mockData';
+import { initialTasks } from './mockData';
 import { HomologationTask } from '../types';
 
 export function useHomologationTasks() {
-  const DATA_VERSION = 'v22-update-petropolis-strings';
+  const DATA_VERSION = 'v26-remove-archived';
 
   // Check if data needs re-seeding (SSR-safe)
   try {
@@ -21,7 +21,6 @@ export function useHomologationTasks() {
   }
 
   const [tasks, setTasks] = useLocalStorage<HomologationTask[]>('homologation-tasks', initialTasks);
-  const [archivedTasks, setArchivedTasks] = useLocalStorage<HomologationTask[]>('homologation-archived', initialArchivedTasks);
   const [selectedTask, setSelectedTask] = useState<HomologationTask | null>(null);
 
   const updateTask = (updatedTask: HomologationTask) => {
@@ -54,29 +53,11 @@ export function useHomologationTasks() {
     return newTask;
   };
 
-  const archiveTask = (taskId: string) => {
-    const taskToArchive = tasks.find(t => t.id === taskId);
-    if (!taskToArchive) return;
-    setArchivedTasks([...archivedTasks, taskToArchive]);
-    setTasks(tasks.filter(t => t.id !== taskId));
-    setSelectedTask(null);
-  };
-
-  const restoreTask = (taskId: string) => {
-    const taskToRestore = archivedTasks.find(t => t.id === taskId);
-    if (!taskToRestore) return;
-    setTasks([...tasks, taskToRestore]);
-    setArchivedTasks(archivedTasks.filter(t => t.id !== taskId));
-  };
-
   return {
     tasks,
-    archivedTasks,
     selectedTask,
     setSelectedTask,
     updateTask,
     createTask,
-    archiveTask,
-    restoreTask,
   };
 }
