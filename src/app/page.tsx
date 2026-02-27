@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useHomologationTasks } from '@/lib/useHomologationTasks';
 import { useCarrierDocuments } from '@/lib/useCarrierDocuments';
 import { useThemeToggle } from '@/lib/useThemeToggle';
@@ -13,6 +13,8 @@ import { Modal } from '@/components/Modal';
 import { NewTaskModal } from '@/components/NewTaskModal';
 import { NewDocumentModal } from '@/components/NewDocumentModal';
 import { LoginPage } from '@/components/LoginPage';
+import { StatusFilter, CompletionFilter } from '@/components/StatusFilter';
+import { HomologationStatus } from '@/types';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'list' | 'kanban'>('list');
@@ -23,6 +25,24 @@ export default function App() {
 
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
   const [isNewDocModalOpen, setIsNewDocModalOpen] = useState(false);
+  const [selectedStatuses, setSelectedStatuses] = useState<HomologationStatus[]>([]);
+  const [selectedCompletionFilters, setSelectedCompletionFilters] = useState<CompletionFilter[]>([]);
+
+  const filteredTasks = useMemo(() => {
+    const hasStatusFilter = selectedStatuses.length > 0;
+    const hasCompletionFilter = selectedCompletionFilters.length > 0;
+    if (!hasStatusFilter && !hasCompletionFilter) return tasks;
+
+    return tasks.filter(task => {
+      const statusMatch = !hasStatusFilter || selectedStatuses.includes(task.status);
+      const isCompleted = task.completed ?? false;
+      const completionMatch = !hasCompletionFilter || (
+        (selectedCompletionFilters.includes('completed') && isCompleted) ||
+        (selectedCompletionFilters.includes('not-completed') && !isCompleted)
+      );
+      return statusMatch && completionMatch;
+    });
+  }, [tasks, selectedStatuses, selectedCompletionFilters]);
 
   if (!mounted) {
     return <div className="flex h-screen bg-gray-50 items-center justify-center text-gray-500">Carregando...</div>;
@@ -48,10 +68,22 @@ export default function App() {
         <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] rounded-full bg-cyan-300/10 blur-[120px] pointer-events-none" />
         <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] rounded-full bg-brand-400/10 blur-[120px] pointer-events-none" />
 
+        {isEditor && (
+          <div className="px-6 pt-4 relative z-10">
+            <StatusFilter
+              selectedStatuses={selectedStatuses}
+              onChangeStatuses={setSelectedStatuses}
+              selectedCompletionFilters={selectedCompletionFilters}
+              onChangeCompletionFilters={setSelectedCompletionFilters}
+              tasks={tasks}
+            />
+          </div>
+        )}
+
         <div className="flex-1 p-6 overflow-y-auto relative z-10">
           {activeTab === 'list' && (
             <HomologationsListView
-              tasks={tasks}
+              tasks={filteredTasks}
               onTaskClick={setSelectedTask}
               onAddTask={isEditor ? () => setIsNewTaskModalOpen(true) : undefined}
               onUpdateTask={isEditor ? updateTaskSilent : undefined}
@@ -59,7 +91,7 @@ export default function App() {
           )}
           {activeTab === 'kanban' && (
             <HomologationsView
-              tasks={tasks}
+              tasks={filteredTasks}
               onTaskClick={setSelectedTask}
             />
           )}

@@ -6,7 +6,7 @@ import { initialTasks } from './mockData';
 import { HomologationTask } from '../types';
 
 export function useHomologationTasks() {
-  const DATA_VERSION = 'v28-batch-status-updates';
+  const DATA_VERSION = 'v37-agropalma-done';
 
   // Check if data needs re-seeding (SSR-safe)
   try {

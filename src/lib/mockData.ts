@@ -4,7 +4,7 @@ export const initialTasks: HomologationTask[] = [
   {
     id: '22',
     clientName: 'Agropalma',
-    status: 'Waiting on Sector',
+    status: 'Approved',
     deadline: '2026-02-27',
     followUpDate: '',
     priority: 'medium',
@@ -13,11 +13,11 @@ export const initialTasks: HomologationTask[] = [
       {
         id: 'agro-chk-1',
         title: 'Checklist Agropalma',
-        status: 'NotStarted',
+        status: 'Done',
         responsible: 'Comercial',
         subtasks: [
           { id: 'agro-st1', title: 'Tratativa Inicial', type: 'text', status: 'Done', value: 'Concluído' },
-          { id: 'agro-st2', title: 'Orientações Islâmicas', type: 'text', status: 'NotStarted', value: '' }
+          { id: 'agro-st2', title: 'Orientações Islâmicas', type: 'text', status: 'Done', value: 'Concluído' }
         ]
       }
     ],
@@ -28,12 +28,13 @@ export const initialTasks: HomologationTask[] = [
     contactIsWhatsApp: false,
     contactLink: 'https://sesuite.agropalma.com.br/se/v79508/survey/s.php?token=b64177bea871456cf6633911e5e1eac6&se-guestsession-token=6006756f404b74441f496274d7830aec9241',
     empresa: '',
-    filial: ''
+    filial: '',
+    completed: true
   },
   { id: '21', clientName: 'Ambev', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
   { id: '2', clientName: 'Atvos Energia', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true },
   {
-    id: '13', clientName: 'Evonik', status: 'Waiting on Client', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
+    id: '13', clientName: 'Evonik', status: 'In Progress', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
       {
         id: 'evo-chk-1',
         title: 'Responsável pelo preenchimento da RFI',
@@ -139,7 +140,7 @@ export const initialTasks: HomologationTask[] = [
   },
   { id: '6', clientName: 'Flora Produtos De Higiene E Limpeza S/A', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true },
   {
-    id: '11', clientName: 'FS Bioenergia', status: 'Waiting on Client', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
+    id: '11', clientName: 'FS Bioenergia', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
       {
         id: 'fs-chk-1',
         title: 'Documentação Corretora',
@@ -150,17 +151,27 @@ export const initialTasks: HomologationTask[] = [
           { id: 'fs-st2', title: 'Apólice RC-DC (Morada)', type: 'attachment', status: 'Done', value: 'OK' },
           { id: 'fs-st3', title: 'Apólice RC-DC (Itaobi)', type: 'attachment', status: 'Done', value: 'OK' }
         ]
+      },
+      {
+        id: 'fs-chk-2',
+        title: 'Envio de Apólices',
+        status: 'Done',
+        responsible: 'Financeiro',
+        subtasks: [
+          { id: 'fs-st4', title: 'Envio Apólice RCTR-C', type: 'attachment', status: 'Done', value: 'OK' },
+          { id: 'fs-st5', title: 'Envio Apólice RC-DC', type: 'attachment', status: 'Done', value: 'OK' }
+        ]
       }
-    ], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: ''
+    ], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true
   },
   { id: '16', clientName: 'Go Flux', status: 'Rejected', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: 'GO FLUX: negociação como perdida, motivo: Preço\nValor cobrado pelo serviço de disponibilizar fretes muito alto e sem garantia de resultado', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true },
   { id: '20', clientName: 'Gomes De Carvalho', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
   {
-    id: '8', clientName: 'Grupo Petropolis', status: 'Waiting on Client', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
+    id: '8', clientName: 'Grupo Petropolis', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
       {
         id: 'gp-checklist-2',
         title: 'Preenchimento RFI',
-        status: 'NotStarted',
+        status: 'Done',
         responsible: 'Comercial',
         subtasks: [
           { id: 'gp-r1', title: 'Razão Social da Transportadora', type: 'text', status: 'Done', value: 'RODOVIARIO MORADA DO SOL LTDA' },
@@ -180,7 +191,7 @@ export const initialTasks: HomologationTask[] = [
           { id: 'gp-r15', title: 'Contato Financeiro (E-mail)', type: 'text', status: 'Done', value: 'financeiro@morada.com.br' },
         ]
       }
-    ], history: [], contactName: 'Evelyn Souza', contactEmail: 'evsouza@grupopetropolis.com.br', contactPhone: '-', contactIsWhatsApp: false, contactLink: 'https://forms.office.com/Pages/ResponsePage.aspx?id=YaUhhsQ11EiWizqpu7MLx54cnZX4bt1NmoJWcLKtkN5UNUo0S0I4UExWSDdNQ0ZKTTVXWFU5TjRTVS4u&origin=QRCode', empresa: 'Morada', filial: ''
+    ], history: [], contactName: 'Evelyn Souza', contactEmail: 'evsouza@grupopetropolis.com.br', contactPhone: '-', contactIsWhatsApp: false, contactLink: 'https://forms.office.com/Pages/ResponsePage.aspx?id=YaUhhsQ11EiWizqpu7MLx54cnZX4bt1NmoJWcLKtkN5UNUo0S0I4UExWSDdNQ0ZKTTVXWFU5TjRTVS4u&origin=QRCode', empresa: 'Morada', filial: '', completed: true
   },
   { id: '1', clientName: 'Heineken', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true },
   { id: '10', clientName: 'Inpasa', status: 'Rejected', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: 'Inpasa: negociação como perdida, motivo: Outros\nCusto para licença inviabiliza o processo.', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true },
@@ -449,11 +460,11 @@ export const initialTasks: HomologationTask[] = [
   },
   { id: '17', clientName: 'Pão De Açucar', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
   { id: '18', clientName: 'Permetal', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
-  { id: '12', clientName: 'Raízen', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
+  { id: '12', clientName: 'Raízen', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true },
   {
     id: '9',
     clientName: 'Royal Fic Combustível',
-    status: 'In Progress',
+    status: 'Approved',
     deadline: '2026-02-27',
     followUpDate: '',
     priority: 'medium',
@@ -480,7 +491,7 @@ export const initialTasks: HomologationTask[] = [
   },
   { id: '19', clientName: 'Santa Helena', status: 'Rejected', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: 'Cotação rejeitada. Motivo da perda: Outros.\nCotação para regiões de origem que não atendemos.', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true },
   {
-    id: '15', clientName: 'Valgroup', status: 'Waiting on Client', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
+    id: '15', clientName: 'Valgroup', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
       {
         id: 'vg-checklist-1',
         title: 'Informações Cadastrais',
@@ -505,7 +516,7 @@ export const initialTasks: HomologationTask[] = [
           { id: 'vg-c16', title: 'Email do usuário', type: 'text', status: 'Done', value: 'gustavo.geraldo@morada.com.br' }
         ]
       }
-    ], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: ''
+    ], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true
   },
 ];
 
