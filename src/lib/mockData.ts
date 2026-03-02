@@ -31,10 +31,10 @@ export const initialTasks: HomologationTask[] = [
     filial: '',
     completed: true
   },
-  { id: '21', clientName: 'Ambev', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
+  { id: '21', clientName: 'Ambev', status: 'Waiting on Sector', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: 'Aguardando envio do RFI para andamento', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
   { id: '2', clientName: 'Atvos Energia', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true },
   {
-    id: '13', clientName: 'Evonik', status: 'In Progress', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
+    id: '13', clientName: 'Evonik', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
       {
         id: 'evo-chk-1',
         title: 'Responsável pelo preenchimento da RFI',
@@ -136,7 +136,7 @@ export const initialTasks: HomologationTask[] = [
           { id: 'evo-cl2', title: 'Lista de Contatos de Clientes 1 a 5', type: 'text', status: 'Done', value: 'Não evidenciado' }
         ]
       }
-    ], history: [], contactName: 'Ricardo Braga Frajuca', contactEmail: 'ricardo.frajuca@morada.com.br', contactPhone: '(16) 99792-4683', contactIsWhatsApp: false, contactLink: '', empresa: 'Morada Transportes', filial: 'Araraquara'
+    ], history: [], contactName: 'Ricardo Braga Frajuca', contactEmail: 'ricardo.frajuca@morada.com.br', contactPhone: '(16) 99792-4683', contactIsWhatsApp: false, contactLink: '', empresa: 'Morada Transportes', filial: 'Araraquara', completed: true
   },
   { id: '6', clientName: 'Flora Produtos De Higiene E Limpeza S/A', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true },
   {
@@ -165,7 +165,7 @@ export const initialTasks: HomologationTask[] = [
     ], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true
   },
   { id: '16', clientName: 'Go Flux', status: 'Rejected', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: 'GO FLUX: negociação como perdida, motivo: Preço\nValor cobrado pelo serviço de disponibilizar fretes muito alto e sem garantia de resultado', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true },
-  { id: '20', clientName: 'Gomes De Carvalho', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
+  { id: '20', clientName: 'Gomes De Carvalho', status: 'Waiting on Sector', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: 'Aguardando envio do RFI para andamento', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
   {
     id: '8', clientName: 'Grupo Petropolis', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
       {
@@ -292,7 +292,7 @@ export const initialTasks: HomologationTask[] = [
     ], history: [], contactName: 'Thales Hernani dos Santos Ferreira', contactEmail: 'thales.ferreira@minervafoods.com', contactPhone: '(17) 98183-6630', contactIsWhatsApp: true, contactLink: 'https://fluig.minervafoods.com:10000/portal/MINERVA/cadastroTransportador', empresa: 'Morada', filial: 'Araraquara (Matriz)'
   },
   {
-    id: '14', clientName: 'Novelis', status: 'In Progress', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
+    id: '14', clientName: 'Novelis', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [
       {
         id: 'nov-chk-1',
         title: 'Dados Gerais',
@@ -456,10 +456,10 @@ export const initialTasks: HomologationTask[] = [
           { id: 'nov-gr13', title: 'Tecnologia de Rastreadores secundários (Instalados no Implemento)', type: 'text', status: 'NotStarted', value: '' }
         ]
       }
-    ], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: ''
+    ], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true
   },
-  { id: '17', clientName: 'Pão De Açucar', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
-  { id: '18', clientName: 'Permetal', status: 'Not Started', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
+  { id: '17', clientName: 'Pão De Açucar', status: 'Waiting on Sector', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: 'Aguardando envio do RFI para andamento', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
+  { id: '18', clientName: 'Permetal', status: 'Waiting on Sector', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: 'Aguardando envio do RFI para andamento', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '' },
   { id: '12', clientName: 'Raízen', status: 'Approved', deadline: '2026-02-27', followUpDate: '', priority: 'medium', notes: '', checklist: [], history: [], contactName: '', contactEmail: '', contactPhone: '', contactIsWhatsApp: false, contactLink: '', empresa: '', filial: '', completed: true },
   {
     id: '9',
